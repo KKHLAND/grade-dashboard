@@ -3,51 +3,61 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>고등학교 내신 성적 분석 대시보드 (최종판)</title>
+    <title>내신 성적 분석 대시보드 (Pro)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { font-family: 'Arial', 'Pretendard', sans-serif; }
-        .chart-container { position: relative; height: 320px; width: 100%; }
-        /* Toggle Switch CSS */
-        .toggle-checkbox {
-            transition: all 0.2s ease-in-out;
-            border-color: #3b82f6; /* default to blue-500 */
-        }
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #16a34a; /* green-600 */
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #16a34a; /* green-600 */
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Pretendard', sans-serif; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        /* Sidebar Transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
-<body class="bg-gray-100 text-slate-800 font-sans">
-    <div id="app" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header class="bg-gradient-to-r from-[#3c78d8] to-blue-700 text-white shadow-lg rounded-xl h-32">
-            <div class="px-6 flex items-center justify-center h-full">
-                <div class="flex items-center gap-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-8 w-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
-                    <h1 class="text-4xl font-bold">고등학교 내신 성적 분석 대시보드</h1>
+<body class="bg-gray-50 text-slate-800 antialiased">
+    <div id="app" class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white w-96 h-screen shadow-xl z-20 transform -translate-x-full md:relative md:translate-x-0 flex flex-col">
+            <header class="flex items-center justify-between p-4 bg-gradient-to-br from-indigo-600 to-purple-700 text-white flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <h1 class="text-xl font-bold">성적 분석 설정</h1>
                 </div>
-            </div>
-        </header>
+                <button id="close-sidebar-btn" class="md:hidden p-1 rounded-full text-white/80 hover:bg-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </header>
+            
+            <div id="sidebar-content" class="flex-grow overflow-y-auto p-6 space-y-8 bg-slate-50"></div>
+        </aside>
 
-        <main class="flex flex-col gap-8">
-            <div id="control-and-info-container"></div>
-            <section id="dashboard-container" class="w-full"></section>
-        </main>
-        
-        <footer class="text-center text-base text-slate-500">
-            © 2025 KH KIM. All Rights Reserved.
-        </footer>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex items-center justify-between p-4 bg-white border-b border-slate-200 flex-shrink-0 shadow-sm">
+                <div class="flex items-center gap-4">
+                     <button id="open-sidebar-btn" class="md:hidden p-1 rounded-full text-slate-500 hover:bg-slate-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                    <div id="academic-info-container" class="flex items-center flex-wrap gap-4"></div>
+                </div>
+                <div id="logo-container" class="flex-shrink-0"></div>
+            </header>
+            
+            <main id="dashboard-container" class="flex-1 overflow-y-auto p-6 lg:p-8">
+                <!-- Dashboard content will be rendered here -->
+            </main>
+        </div>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
+    // --- CONSTANTS AND STATE ---
     const CONSTANTS = { GRADE_TIERS_9: { 1: 4, 2: 11, 3: 23, 4: 40, 5: 60, 6: 77, 7: 89, 8: 96, 9: 100 }, GRADES_9_TIER: [1, 2, 3, 4, 5, 6, 7, 8, 9], GRADE_TIERS_5: { 1: 10, 2: 34, 3: 66, 4: 90, 5: 100 }, GRADES_5_TIER: [1, 2, 3, 4, 5], 
         DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER: { A: 85, B: 70, C: 55, D: 40, E: 0 },
         DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER: { A: 85, B: 70, C: 60, D: 45, E: 30, I: 0 }, 
@@ -56,99 +66,149 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = { files: {}, logoSrc: null, academicInfo: { year: new Date().getFullYear(), semester: 1, grade: 1, subject: '' }, analysisSettings: { weights: { midterm: 30, final: 30, performance: 40 }, gradingSystem: 'relative', gradeTiers: 9, 
         achievementCutoffs9Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER} },
         achievementCutoffs5Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER} }
-    }, filters: { classes: [], grades: [] }, activeStatTab: 'midterm', allStudents: [], classList: [], analysisError: null, isProcessing: false, isReady: false, sortConfig: { key: 'ranks.midterm', direction: 'asc' } };
+    }, filters: { classes: [], grades: [] }, activeStatTab: 'midterm', allStudents: [], classList: [], analysisError: null, isProcessing: false, isReady: false, sortConfig: { key: 'ranks.midterm', direction: 'asc' }, isSidebarOpen: false };
     
     const DOMElements = { 
-        controlAndInfoContainer: document.getElementById('control-and-info-container'),
-        dashboardContainer: document.getElementById('dashboard-container')
+        sidebarContent: document.getElementById('sidebar-content'),
+        academicInfoContainer: document.getElementById('academic-info-container'),
+        logoContainer: document.getElementById('logo-container'),
+        dashboardContainer: document.getElementById('dashboard-container'),
+        sidebar: document.getElementById('sidebar'),
+        openSidebarBtn: document.getElementById('open-sidebar-btn'),
+        closeSidebarBtn: document.getElementById('close-sidebar-btn'),
     };
     let pieChartInstance = null, barChartInstance = null;
 
+    // --- RENDER FUNCTIONS ---
     function render() {
-        renderControlsAndInfo();
+        renderSidebar();
+        renderHeader();
         renderDashboard(); 
     }
     
-    function renderControlsAndInfo() {
-        const { files, analysisSettings: s, filters, classList, isReady, academicInfo, logoSrc, activeStatTab } = state;
-        const fields = [{ id: 'year', label: '학년도', value: academicInfo.year, type: 'number', w: 'w-24' }, { id: 'semester', label: '학기', value: academicInfo.semester, type: 'number', w: 'w-16' }, { id: 'grade', label: '학년', value: academicInfo.grade, type: 'number', w: 'w-16' }, { id: 'subject', label: '과목', value: academicInfo.subject, type: 'text', p: '예: 영어', w: 'w-32' }];
-        const academicInfoHTML = `<div class="bg-white p-6 rounded-xl shadow-lg border"><div class="flex justify-between items-center gap-8"><div class="flex-grow"><h2 class="text-xl font-semibold text-slate-700 border-b pb-2 mb-4 text-center">분석 대상 정보</h2><div class="flex items-center justify-center flex-wrap gap-6 text-lg pt-2">${fields.map(f => `<div class="flex"><label class="inline-flex items-center px-3 rounded-l-md border bg-slate-100 font-semibold">${f.label}</label><input type="${f.type}" value="${f.value}" ${f.p ? `placeholder="${f.p}"` : ''} class="${f.w} rounded-none rounded-r-md bg-slate-50 p-1.5 text-center border focus:ring-2 focus:ring-blue-500" onchange="window.handleAcademicInfoChange('${f.id}', this.value)"></div>`).join('')}</div></div><div class="flex-shrink-0"><label for="logo-upload" class="cursor-pointer group flex flex-col items-center gap-2"><img id="logo-preview" src="${logoSrc || ''}" alt="School Logo" class="${logoSrc ? '' : 'hidden'} h-14 w-auto max-w-44 rounded-md object-contain ring-2 ring-slate-200" /><div id="logo-placeholder" class="${logoSrc ? 'hidden' : ''} h-14 w-28 rounded-md bg-slate-50 flex items-center justify-center ring-2 ring-slate-200 group-hover:ring-blue-500"><span class="text-sm font-semibold text-slate-500 text-center">학교 로고<br/>업로드</span></div><input id="logo-upload" type="file" accept="image/*" class="hidden" /></label></div></div></div>`;
-
+    function renderSidebar() {
+        const { files, analysisSettings: s, filters, classList, isReady, activeStatTab } = state;
         const totalWeight = Object.values(s.weights).reduce((sum, v) => sum + v, 0);
-        const fileHTML = Object.entries(CONSTANTS.FILE_METADATA).map(([k, {label}]) => `<div class="flex items-center gap-2 p-2 rounded-md ${files[k]?'bg-green-50 text-green-700':'bg-slate-100'}">${files[k]?'<svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>':'<div class="w-4 h-4 border-2 border-slate-300 rounded-full"></div>'}<span>${label}</span></div>`).join('');
-        const weightHTML = Object.keys(s.weights).map(k=>`<div><div class="flex justify-between mb-1"><label class="font-medium">${{midterm:"중간고사",final:"기말고사",performance:"수행평가"}[k]}</label><div class="flex items-center"><input type="number" min="0" max="100" value="${s.weights[k]}" onchange="window.handleWeightChange('${k}',this.value)" class="w-16 p-1 border rounded-md text-center"><span class="ml-1 font-semibold">%</span></div></div><input type="range" min="0" max="100" value="${s.weights[k]}" oninput="window.handleWeightChange('${k}',this.value)" class="w-full h-2 bg-slate-200 rounded-lg"></div>`).join('');
         
-        const currentCutoffs = s.gradeTiers === 9 ? s.achievementCutoffs9Tier[activeStatTab] : s.achievementCutoffs5Tier[activeStatTab];
-        const gradeOpts = s.gradingSystem === 'relative' ? (s.gradeTiers === 9 ? CONSTANTS.GRADES_9_TIER.map(String) : CONSTANTS.GRADES_5_TIER.map(String)) : Object.keys(currentCutoffs);
-        const cutoffsHTML = Object.entries(currentCutoffs).sort(([a],[b]) => a.localeCompare(b)).map(([l, v]) => {
-            const isLocked = (s.gradeTiers === 9 && l === 'E') || (s.gradeTiers === 5 && l === 'I');
-            const value = isLocked ? 0 : v;
-            const disabledAttr = isLocked ? 'disabled' : '';
-            const disabledClasses = isLocked ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : '';
-            const labelColor = l === 'I' ? 'text-red-600' : 'text-slate-500';
-            const inputBorder = l === 'I' ? 'border-red-300 bg-red-50' : '';
-            return `<div><label class="font-bold text-base ${labelColor}">${l}</label><input type="number" step="0.01" value="${value}" onchange="window.handleCutoffChange('${l}', this.value)" class="w-full p-1 border rounded-md text-center ${disabledClasses} ${inputBorder}" ${disabledAttr}></div>`;
-        }).join('');
-        
-        const gradeTierToggleHTML = `<div class="text-center">
-            <div class="flex items-center justify-center gap-3">
-                <span class="font-semibold text-lg ${s.gradeTiers === 9 ? 'text-blue-600' : 'text-slate-400'}">9 등급제</span>
-                <div class="relative inline-block w-12 align-middle select-none">
-                    <input type="checkbox" name="toggle" id="grade-tier-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onchange="window.handleSettingsChange('gradeTiers', this.checked ? 5 : 9)" ${s.gradeTiers === 5 ? 'checked' : ''} />
-                    <label for="grade-tier-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-blue-500 cursor-pointer"></label>
+        const is9Tier = s.gradeTiers === 9;
+        const activeColor = is9Tier ? 'green' : 'indigo';
+        const activeBgClass = `bg-${activeColor}-600`;
+        const activeTextClass = `text-${activeColor}-600`;
+        const focusRingClass = `peer-focus:ring-${activeColor}-300`;
+        const lightBgClass = `bg-${activeColor}-50`;
+        const lightBorderClass = `border-${activeColor}-200`;
+        const lightTextClass = `text-${activeColor}-800`;
+
+        const fileUploadHTML = `<div class="space-y-3">
+            <label for="file-upload" class="cursor-pointer group">
+                <div class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 text-center bg-white group-hover:border-${activeColor}-500 transition-colors">
+                    <svg class="w-10 h-10 text-slate-400 group-hover:text-${activeColor}-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                    <p class="mt-2 font-semibold">파일 선택 또는 드래그</p>
+                    <p class="text-sm text-slate-500">명렬표, 중간, 기말, 수행 (.csv)</p>
                 </div>
-                <span class="font-semibold text-lg ${s.gradeTiers === 5 ? 'text-green-600' : 'text-slate-400'}">5 등급제</span>
+                <input id="file-upload" type="file" multiple accept=".csv" class="hidden">
+            </label>
+            <div class="grid grid-cols-2 gap-2 text-sm">${Object.entries(CONSTANTS.FILE_METADATA).map(([k, {label}]) => `<div class="flex items-center gap-2 p-2 rounded-md ${files[k]?'bg-green-100 text-green-700':'bg-white border'}">${files[k]?'<svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>':'<div class="w-4 h-4 border-2 border-slate-300 rounded-full"></div>'}<span>${label}</span></div>`).join('')}</div>
+            <div class="text-xs text-slate-500 space-y-2 pt-2">
+                <p><strong>참고:</strong> 파일 이름에 '명렬표', '중간', '기말', '수행'이 포함되어야 합니다. 또한, 성적 파일에 누락된 학생 번호는 명렬표와 동일하게 빈 칸으로 채워주세요.</p>
             </div>
         </div>`;
 
-        const classFilterHTML=classList.map(c=>`<button onclick="window.handleFilterChange('classes','${c}')" class="p-1.5 rounded-md ${filters.classes.includes(c)?'bg-blue-600 text-white font-semibold':'bg-slate-100 hover:bg-slate-200'}">${c}</button>`).join('');
-        const gradeFilterHTML=gradeOpts.map(g=>`<button onclick="window.handleFilterChange('grades','${g}')" class="p-1.5 rounded-md ${filters.grades.includes(g)?'bg-blue-600 text-white font-semibold':`bg-slate-100 hover:bg-slate-200 ${g==='I'?'text-red-600 font-bold':''}`}">${g}</button>`).join('');
+        const weightsHTML = `<div class="space-y-4">${Object.keys(s.weights).map(k => `<div><div class="flex justify-between mb-1"><label class="font-medium text-sm">${{midterm:"중간고사",final:"기말고사",performance:"수행평가"}[k]}</label><div class="flex items-center"><input type="number" min="0" max="100" value="${s.weights[k]}" onchange="window.handleWeightChange('${k}',this.value)" class="w-16 p-1 bg-white border border-slate-300 rounded-md text-center text-sm"><span class="ml-2 font-semibold">%</span></div></div><input type="range" min="0" max="100" value="${s.weights[k]}" oninput="window.handleWeightChange('${k}',this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"></div>`).join('')}${totalWeight!==100?`<p class="text-xs text-center p-2 rounded-md ${totalWeight>100?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}">총합은 100%여야 합니다. (현재: ${totalWeight}%)</p>`:''}</div>`;
+
+        const gradeTierToggleHTML = `<div class="flex items-center justify-center gap-3">
+            <span class="font-semibold text-sm ${is9Tier ? 'text-green-600' : 'text-slate-400'}">9 등급제</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" onchange="window.handleSettingsChange('gradeTiers', this.checked ? 5 : 9)" ${s.gradeTiers === 5 ? 'checked' : ''}>
+                <div class="w-11 h-6 ${is9Tier ? 'bg-green-600' : 'bg-indigo-600'} rounded-full peer peer-focus:ring-4 ${is9Tier ? 'peer-focus:ring-green-300' : 'peer-focus:ring-indigo-300'} after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full after:border-white"></div>
+            </label>
+            <span class="font-semibold text-sm ${!is9Tier ? 'text-indigo-600' : 'text-slate-400'}">5 등급제</span>
+        </div>`;
         
-        
-        const warningMessages = `
-            <div class="space-y-2 mt-4 text-sm">
-                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3" role="alert">
-                    <p class="font-bold">파일 규칙 안내</p>
-                    <p>업로드할 파일은 <strong>CSV (UTF-8) 형식</strong>이어야 합니다.<br>
-                    또한 파일 이름에 '명렬표', '중간', '기말', '수행' 키워드가 포함되어야 자동으로 인식됩니다.</p>
-                </div>
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-3" role="alert">
-                    <p class="font-bold">데이터 형식 주의사항 (중요)</p>
-                    <p>성적 파일에 번호가 누락된 학생이 있다면, 반드시 명렬표와 동일하게 <strong>빈 칸으로 번호를 채워 줄(row)을 맞춰주세요.</strong> 그렇지 않으면 데이터가 밀려 잘못 분석됩니다.</p>
-                </div>
-            </div>`;
-        
-        const controlPanelHTML=`<div class="bg-white p-6 rounded-xl shadow-lg border space-y-8 mt-8 text-lg"><div class="grid md:grid-cols-2 gap-8"><div><h2 class="text-xl font-semibold border-b pb-2 mb-4">1. 데이터 업로드</h2><div class="space-y-3"><label for="file-upload" class="cursor-pointer group"><div class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 text-center group-hover:border-blue-500"><svg class="w-10 h-10 text-slate-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M17.25 12a4.5 4.5 0 01-9 0 4.5 4.5 0 019 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-5.32-4.03-9.75-9-9.75S1.5 6.68 1.5 12s4.03 9.75 9 9.75 9-4.33 9-9.75z"/></svg><p class="mt-2">파일 선택</p><p class="text-base text-slate-400">명렬표, 중간, 기말, 수행</p></div><input id="file-upload" type="file" multiple accept=".csv" class="hidden"></label>${warningMessages}<div class="grid grid-cols-2 gap-2 pt-2">${fileHTML}</div></div></div><div><h2 class="text-xl font-semibold border-b pb-2 mb-4">2. 반영 비율 설정</h2><div class="space-y-4">${weightHTML}${totalWeight!==100?`<p class="text-base text-center p-2 rounded-md ${totalWeight>100?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}">총합은 100%여야 합니다. (현재:${totalWeight}%)</p>`:''}</div></div></div><hr/><div class="grid md:grid-cols-2 gap-8"><div><h2 class="text-xl font-semibold border-b pb-2 mb-4">3. 분석 설정</h2><div class="space-y-6">
-       
+        const currentCutoffs = s.gradeTiers === 9 ? s.achievementCutoffs9Tier[activeStatTab] : s.achievementCutoffs5Tier[activeStatTab];
+        const cutoffsHTML = Object.entries(currentCutoffs).sort(([a],[b]) => a.localeCompare(b)).map(([l, v]) => {
+            const isLocked = (s.gradeTiers === 9 && l === 'E') || (s.gradeTiers === 5 && l === 'I');
+            return `<div><label class="font-bold text-sm ${l==='I'?'text-red-500':'text-slate-500'}">${l}</label><input type="number" step="0.01" value="${isLocked?0:v}" onchange="window.handleCutoffChange('${l}', this.value)" class="w-full mt-1 p-1 bg-white border border-slate-300 rounded-md text-center text-sm ${isLocked?'cursor-not-allowed opacity-60':''}" ${isLocked?'disabled':''}></div>`;
+        }).join('');
+
+        const analysisSettingsHTML = `<div class="space-y-4">
             ${gradeTierToggleHTML}
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="window.handleSettingsChange('gradingSystem','relative')" class="flex-1 py-2 font-semibold rounded-md ${s.gradingSystem==='relative'?'bg-blue-600 text-white':'bg-slate-100 hover:bg-slate-200'}">상대평가(등급)</button>
-                <button onclick="window.handleSettingsChange('gradingSystem','absolute')" class="flex-1 py-2 font-semibold rounded-md ${s.gradingSystem==='absolute'?'bg-blue-600 text-white':'bg-slate-100 hover:bg-slate-200'}">절대평가(성취도)</button>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <button onclick="window.handleSettingsChange('gradingSystem','relative')" class="py-2 font-semibold rounded-md transition-colors ${s.gradingSystem==='relative'?`${activeBgClass} text-white`:'bg-white border hover:bg-slate-100'}">상대평가 (등급)</button>
+                <button onclick="window.handleSettingsChange('gradingSystem','absolute')" class="py-2 font-semibold rounded-md transition-colors ${s.gradingSystem==='absolute'?`${activeBgClass} text-white`:'bg-white border hover:bg-slate-100'}">절대평가 (성취도)</button>
             </div>
-            ${s.gradingSystem==='absolute'?`<div class="space-y-2 p-3 bg-blue-50 border-t pt-4"><p class="font-medium text-blue-800 text-center">성취도 분할 점수 (${CONSTANTS.TABS[activeStatTab]})</p><div class="grid grid-cols-3 gap-2 mt-2">${cutoffsHTML}</div></div>`:''}
-        </div></div>${isReady?`<div><h2 class="text-xl font-semibold border-b pb-2 mb-4">4. 동적 필터</h2><div class="space-y-4"><div class="space-y-2"><div class="flex justify-between"><h3 class="font-semibold">학급</h3><button onclick="window.handleSelectAll('classes')" class="text-base text-blue-600 hover:underline">${filters.classes.length===classList.length?'전체해제':'전체선택'}</button></div><div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2">${classFilterHTML}</div></div><div class="space-y-2"><div class="flex justify-between"><h3 class="font-semibold">${s.gradingSystem==='relative'?'등급':'성취도'}</h3><button onclick="window.handleSelectAll('grades')" class="text-base text-blue-600 hover:underline">${filters.grades.length===gradeOpts.length?'전체해제':'전체선택'}</button></div><div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2">${gradeFilterHTML}</div></div></div></div>`:`<div class="flex flex-col items-center justify-center h-full bg-slate-50 rounded-lg p-6 text-center border-dashed"><svg class="h-10 w-10 text-slate-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3-7.5 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg><p class="font-medium">데이터 필터</p><p class="text-base text-slate-400 mt-1">데이터가 로드되면 표시됩니다.</p></div>`}</div></div>`;
+            ${s.gradingSystem==='absolute'?`<div class="space-y-2 p-3 ${lightBgClass} ${lightBorderClass} rounded-lg pt-4"><p class="font-medium ${lightTextClass} text-center text-sm">성취도 분할 점수 (${CONSTANTS.TABS[activeStatTab]})</p><div class="grid grid-cols-3 gap-2 mt-2">${cutoffsHTML}</div></div>`:''}
+        </div>`;
+
+        const gradeOpts = s.gradingSystem === 'relative' ? (s.gradeTiers === 9 ? CONSTANTS.GRADES_9_TIER.map(String) : CONSTANTS.GRADES_5_TIER.map(String)) : Object.keys(currentCutoffs);
+        const classFilterHTML=classList.map(c=>`<button onclick="window.handleFilterChange('classes','${c}')" class="px-2 py-1 text-sm rounded-md transition-colors ${filters.classes.includes(c)?`${activeBgClass} text-white font-semibold`:'bg-white border hover:bg-slate-100'}">${c}</button>`).join('');
+        const gradeFilterHTML=gradeOpts.map(g=>`<button onclick="window.handleFilterChange('grades','${g}')" class="px-2 py-1 text-sm rounded-md transition-colors ${filters.grades.includes(g)?`${activeBgClass} text-white font-semibold`:`bg-white border hover:bg-slate-100 ${g==='I'?'text-red-500 font-bold':''}`}">${g}</button>`).join('');
+        const filtersHTML = isReady ? `<div class="space-y-4"><div class="space-y-2">
+            <div class="flex justify-between items-center"><h3 class="font-semibold text-sm">학급</h3><button onclick="window.handleSelectAll('classes')" class="text-xs ${activeTextClass} hover:underline">${filters.classes.length===classList.length?'전체해제':'전체선택'}</button></div>
+            <div class="grid grid-cols-4 gap-2">${classFilterHTML}</div></div><div class="space-y-2">
+            <div class="flex justify-between items-center"><h3 class="font-semibold text-sm">${s.gradingSystem==='relative'?'등급':'성취도'}</h3><button onclick="window.handleSelectAll('grades')" class="text-xs ${activeTextClass} hover:underline">${filters.grades.length===gradeOpts.length?'전체해제':'전체선택'}</button></div>
+            <div class="grid grid-cols-5 gap-2">${gradeFilterHTML}</div></div></div>` : `<div class="flex flex-col items-center justify-center rounded-lg p-6 text-center bg-white border">
+            <svg class="h-8 w-8 text-slate-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3-7.5 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
+            <p class="font-medium text-sm">데이터 필터</p><p class="text-xs text-slate-500 mt-1">데이터가 로드되면 활성화됩니다.</p></div>`;
+
+        const sidebarSections = [
+            { title: '1. 데이터 업로드', content: fileUploadHTML },
+            { title: '2. 반영 비율 설정', content: weightsHTML },
+            { title: '3. 분석 설정', content: analysisSettingsHTML },
+            { title: '4. 동적 필터', content: filtersHTML },
+        ];
         
-        DOMElements.controlAndInfoContainer.innerHTML = academicInfoHTML + controlPanelHTML;
+        DOMElements.sidebarContent.innerHTML = sidebarSections.map(section => `
+            <div class="bg-white p-4 rounded-lg border"><h2 class="text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-4">${section.title}</h2>${section.content}</div>
+        `).join('');
+
         document.getElementById('file-upload').addEventListener('change', window.handleFileChange);
-        document.getElementById('logo-upload').addEventListener('change', window.handleLogoChange);
+        setupDropzoneEventListeners();
     }
     
+    function renderHeader() {
+        const { academicInfo, logoSrc } = state;
+        const fields = [{ id: 'year', label: '학년도', value: academicInfo.year, type: 'number' }, { id: 'semester', label: '학기', value: academicInfo.semester, type: 'number' }, { id: 'grade', label: '학년', value: academicInfo.grade, type: 'number' }, { id: 'subject', label: '과목', value: academicInfo.subject, type: 'text', p: '예: 영어' }];
+
+        DOMElements.academicInfoContainer.innerHTML = fields.map(f => `<div class="flex items-center">
+            <label class="text-sm font-medium text-slate-600 mr-2">${f.label}</label>
+            <input type="${f.type}" value="${f.value}" ${f.p ? `placeholder="${f.p}"` : ''} class="w-24 bg-slate-100 p-1.5 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" onchange="window.handleAcademicInfoChange('${f.id}', this.value)">
+        </div>`).join('');
+        
+        DOMElements.logoContainer.innerHTML = `<label for="logo-upload" class="cursor-pointer group flex items-center justify-center">
+            <img id="logo-preview" src="${logoSrc || ''}" alt="School Logo" class="${logoSrc ? '' : 'hidden'} h-9 w-auto object-contain" />
+            <div id="logo-placeholder" class="${logoSrc ? 'hidden' : ''} h-9 w-24 rounded-md bg-slate-200 flex items-center justify-center ring-1 ring-slate-300 group-hover:ring-indigo-500">
+                <span class="text-xs font-semibold text-slate-500 text-center">로고 업로드</span>
+            </div>
+            <input id="logo-upload" type="file" accept="image/*" class="hidden" />
+        </label>`;
+        document.getElementById('logo-upload').addEventListener('change', window.handleLogoChange);
+    }
+
     function renderDashboard() {
         const dashboardContainer = DOMElements.dashboardContainer;
         if (state.isProcessing) {
-            dashboardContainer.innerHTML = `<div class="flex justify-center items-center h-96 bg-white rounded-xl shadow-lg border"><p class="text-xl text-slate-500 animate-pulse">데이터 분석 중...</p></div>`;
+            dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-full"><div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div><p class="text-lg text-slate-500 mt-4">데이터 분석 중...</p></div>`;
         } else if (state.analysisError) {
-            dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-96 bg-red-50 rounded-xl shadow-lg border-red-200 p-4 text-center"><p class="text-xl font-bold text-red-700">분석 중 오류가 발생했습니다</p><p class="text-md text-red-600 mt-2">${state.analysisError}</p><p class="text-sm text-slate-500 mt-4">F12를 눌러 개발자 도구의 'Console' 탭에서 자세한 오류를 확인해주세요.</p></div>`;
+            dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-full bg-red-50 rounded-xl p-4 text-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-xl font-bold text-red-700">분석 중 오류가 발생했습니다</p><p class="text-md text-red-600 mt-2">${state.analysisError}</p><p class="text-sm text-slate-500 mt-4">F12를 눌러 개발자 도구의 'Console' 탭에서 자세한 오류를 확인해주세요.</p></div>`;
         } else if (state.isReady) {
             const { allStudents, activeStatTab } = state;
             const stats = calculateStats(allStudents, activeStatTab);
-            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = (tab==='midterm'&&state.files.midterm)||(tab==='final'&&state.files.final)||(tab==='total'&&state.files.midterm&&state.files.final&&state.files.performance); return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-2 border-b-4 font-bold text-xl ${activeStatTab===tab&&isEnabled?'border-blue-600 text-blue-600':'border-transparent text-slate-400 hover:text-slate-600'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}">${CONSTANTS.TABS[tab]}</button>`; }).join('');
+            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = (tab==='midterm'&&state.files.midterm)||(tab==='final'&&state.files.final)||(tab==='total'&&state.files.midterm&&state.files.final&&state.files.performance); return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors ${activeStatTab===tab&&isEnabled?'border-indigo-500 text-indigo-600':'border-transparent text-slate-500 hover:text-slate-800'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}" ${!isEnabled?'disabled':''}>${CONSTANTS.TABS[tab]}</button>`; }).join('');
             const studentsForTable = getFilteredStudents().filter(student => student.scores[activeStatTab] !== null);
             const tableHTML = renderStudentDataTable(getSortedStudents(studentsForTable), allStudents.length);
             
-            dashboardContainer.innerHTML = `<div class="space-y-8">
-                <div class="bg-white p-6 rounded-xl shadow-lg border"><div class="border-b mb-6"><nav class="-mb-px flex space-x-8">${tabsHTML}</nav></div><div class="grid md:grid-cols-3 gap-6"><div class="bg-slate-50/50 p-6 rounded-lg"><h3 class="font-medium text-slate-500">평균</h3><p class="text-4xl font-bold mt-1">${stats.mean.toFixed(2)}</p></div><div class="bg-slate-50/50 p-6 rounded-lg"><h3 class="font-medium text-slate-500">표준편차</h3><p class="text-4xl font-bold mt-1">${stats.stdDev.toFixed(2)}</p></div><div class="bg-slate-50/50 p-6 rounded-lg"><h3 class="font-medium text-slate-500">응시 인원</h3><p class="text-4xl font-bold mt-1">${stats.count}</p></div></div></div>
-                <div class="grid xl:grid-cols-2 gap-8"><div id="pie-chart-wrapper" class="bg-white p-6 rounded-xl shadow-lg border h-[420px]"><h3 class="text-lg font-semibold mb-4">등급/성취도 분포</h3><div class="chart-container"><canvas id="pieChart"></canvas></div></div><div id="bar-chart-wrapper" class="bg-white p-6 rounded-xl shadow-lg border h-[420px]"><h3 class="text-lg font-semibold mb-4">점수 분포 히스토그램</h3><div class="chart-container"><canvas id="barChart"></canvas></div></div></div>
+            dashboardContainer.innerHTML = `<div class="space-y-6">
+                <div><nav class="flex space-x-8 border-b border-slate-200">${tabsHTML}</nav></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="font-medium text-slate-500">평균</h3><p class="text-4xl font-bold mt-1 text-slate-800">${stats.mean.toFixed(2)}</p></div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="font-medium text-slate-500">표준편차</h3><p class="text-4xl font-bold mt-1 text-slate-800">${stats.stdDev.toFixed(2)}</p></div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="font-medium text-slate-500">응시 인원</h3><p class="text-4xl font-bold mt-1 text-slate-800">${stats.count}</p></div>
+                </div>
+                <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                    <div id="pie-chart-wrapper" class="xl:col-span-2 bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="text-lg font-semibold mb-4">등급/성취도 분포</h3><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
+                    <div id="bar-chart-wrapper" class="xl:col-span-3 bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="text-lg font-semibold mb-4">점수 분포 히스토그램</h3><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+                </div>
                 ${tableHTML}
             </div>`;
             
@@ -158,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('bar-chart-wrapper').innerHTML = '<div class="flex items-center justify-center h-full text-red-500 p-4">막대 차트를 불러오지 못했습니다.</div>';
             }}, 0);
         } else {
-            dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-96 bg-white rounded-xl shadow-lg border text-center p-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><h2 class="text-3xl font-semibold">성적 분석 대시보드에 오신 것을 환영합니다</h2><p class="text-base text-slate-500 mt-2">분석을 시작하려면 CSV 성적 파일을 업로드하세요.</p></div>`;
+            dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-full text-center p-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><h2 class="text-2xl font-semibold">성적 분석 대시보드에 오신 것을 환영합니다</h2><p class="text-slate-500 mt-2">좌측 사이드바에서 분석을 시작할 CSV 성적 파일을 업로드하세요.</p></div>`;
         }
     }
     
@@ -167,12 +227,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const { allStudents, analysisSettings, activeStatTab } = state;
         const pieCanvas = document.getElementById('pieChart'), barCanvas = document.getElementById('barChart');
         if(!pieCanvas || !barCanvas) { console.error("Chart canvas not found"); return; }
+        
+        const gridColor = 'rgba(0, 0, 0, 0.1)';
+        const textColor = '#334155';
+        Chart.defaults.color = textColor;
+
         const distCounts = {}; allStudents.forEach(s => { let k = analysisSettings.gradingSystem === 'relative' ? String(s.grades[activeStatTab]) : s.achievements[activeStatTab]; if (k && k !== 'null' && k !== "0" && k !== "F") { distCounts[k] = (distCounts[k] || 0) + 1; } });
         const distData = Object.entries(distCounts).map(([name, value]) => ({ name, value })).sort((a, b) => a.name === '기타' ? 1 : b.name === '기타' ? -1 : String(a.name).localeCompare(String(b.name), undefined, { numeric: true }));
-        if (distData.length > 0) { const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658']; pieChartInstance = new Chart(pieCanvas.getContext('2d'), { type: 'pie', data: { labels: distData.map(d => d.name), datasets: [{ data: distData.map(d => d.value), backgroundColor: distData.map((d, i) => d.name === 'I' ? '#FF4136' : colors[i % colors.length]) }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } } }); }
+        if (distData.length > 0) { const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b']; pieChartInstance = new Chart(pieCanvas.getContext('2d'), { type: 'doughnut', data: { labels: distData.map(d => d.name), datasets: [{ data: distData.map(d => d.value), backgroundColor: distData.map((d, i) => d.name === 'I' ? '#ef4444' : colors[i % colors.length]), borderColor: '#ffffff', borderWidth: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor } } } } }); }
+        
         const bins = { '0-9': 0, '10-19': 0, '20-29': 0, '30-39': 0, '40-49': 0, '50-59': 0, '60-69': 0, '70-79': 0, '80-89': 0, '90-99': 0, '100': 0 }; let scoreCount = 0;
         allStudents.forEach(s => { const score = s.scores[activeStatTab]; if (score != null) { scoreCount++; if (score >= 100) bins['100']++; else if (score >= 0) { const bin = Math.floor(score / 10) * 10; bins[`${bin}-${bin+9}`]++; } } });
-        if (scoreCount > 0) { barChartInstance = new Chart(barCanvas.getContext('2d'), { type: 'bar', data: { labels: Object.keys(bins), datasets: [{ label: '학생 수', data: Object.values(bins), backgroundColor: '#8884d8' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } }); }
+        if (scoreCount > 0) { barChartInstance = new Chart(barCanvas.getContext('2d'), { type: 'bar', data: { labels: Object.keys(bins), datasets: [{ label: '학생 수', data: Object.values(bins), backgroundColor: '#4f46e5', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }, x: { grid: { display: false }, ticks: { color: textColor } } }, plugins: { legend: { display: false } } } }); }
     }
 
     function renderStudentDataTable(students, totalCount) {
@@ -182,15 +248,62 @@ document.addEventListener('DOMContentLoaded', () => {
             midterm: [{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.midterm',l:'점수'},{k:'ranks.midterm',l:'석차'},{k:'grades.midterm',l:'등급'},{k:'achievements.midterm',l:'성취도'}],
             final: [{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.final',l:'점수'},{k:'ranks.final',l:'석차'},{k:'grades.final',l:'등급'},{k:'achievements.final',l:'성취도'}]
         }[activeStatTab];
-        if (!cols) return '<div class="bg-white p-6 rounded-xl shadow-lg border text-red-500 text-center">데이터 테이블을 표시할 수 없습니다. (탭 정보 오류)</div>';
-        const headers = cols.map(c => `<th class="px-4 py-2"><div class="flex items-center gap-1 cursor-pointer" onclick="window.handleSort('${c.k}')">${c.l}${sortConfig?.key===c.k?(sortConfig.direction==='asc'?'<svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>':'<svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>'):''}</div></th>`).join('');
+        if (!cols) return '<div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 text-red-500 text-center">데이터 테이블을 표시할 수 없습니다.</div>';
+        
+        const sortIcon = (key) => sortConfig?.key === key ? (sortConfig.direction === 'asc' ? `<svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>` : `<svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>`) : `<svg class="w-3 h-3 ml-1 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>`;
+        const headers = cols.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer" onclick="window.handleSort('${c.k}')"><div class="flex items-center">${c.l}${sortIcon(c.k)}</div></th>`).join('');
         const getVal = (o, p) => p.split('.').reduce((a, c) => (a||{})[c], o);
-        const rows = students.map(s => `<tr>${cols.map(c => { const v=getVal(s, c.k); const d=typeof v==='number'&&!Number.isInteger(v)?v.toFixed(2):(v??''); return `<td class="px-4 py-2 whitespace-nowrap ${(c.k.includes('achievements')&&v==='I')?'text-red-600 font-semibold':''} ${(c.k==='name'||c.k==='studentId')?'font-medium text-slate-900':''}">${d}</td>`; }).join('')}</tr>`).join('');
-        return `<div class="bg-white p-6 rounded-xl shadow-lg border"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold">학생 데이터 (${students.length}/${totalCount})</h3><button onclick="window.exportToCSV()" class="flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600"><svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>CSV 내보내기</button></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="text-sm uppercase bg-blue-50"><tr>${headers}</tr></thead><tbody class="text-base divide-y">${students.length>0?rows:`<tr><td colspan="${cols.length}" class="text-center py-10">필터와 일치하는 학생이 없습니다.</td></tr>`}</tbody></table></div></div>`;
+        const rows = students.map(s => `<tr class="hover:bg-slate-50">${cols.map(c => { const v=getVal(s, c.k); const d=typeof v==='number'&&!Number.isInteger(v)?v.toFixed(2):(v??'—'); return `<td class="px-4 py-3 whitespace-nowrap text-sm ${(c.k.includes('achievements')&&v==='I')?'text-red-500 font-semibold':''} ${(c.k==='name'||c.k==='studentId')?'font-medium text-slate-900':''}">${d}</td>`; }).join('')}</tr>`).join('');
+        
+        return `<div class="bg-white rounded-xl shadow-md border border-slate-200"><div class="flex justify-between items-center p-4 border-b border-slate-200"><h3 class="text-lg font-semibold">학생 데이터 (${students.length}/${totalCount})</h3><button onclick="window.exportToCSV()" class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700 transition-colors"><svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>CSV 내보내기</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-slate-50"><tr>${headers}</tr></thead><tbody class="divide-y divide-slate-200">${students.length>0?rows:`<tr><td colspan="${cols.length}" class="text-center py-16 text-slate-500">필터와 일치하는 학생이 없습니다.</td></tr>`}</tbody></table></div></div>`;
     }
 
-    // --- Event Handlers & Core Logic ---
-    window.handleFileChange = (event) => { Array.from(event.target.files).forEach(f=>{ for(const [k,m] of Object.entries(CONSTANTS.FILE_METADATA)){ if(f.name.includes(m.name)){state.files[k]=f;break;}}}); processFilesWithDebounce(); };
+    // --- EVENT HANDLERS & CORE LOGIC ---
+    function setupEventListeners() {
+        DOMElements.openSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+        DOMElements.closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
+    }
+    
+    function setupDropzoneEventListeners() {
+        const dropzone = document.querySelector('label[for="file-upload"]');
+        if (!dropzone) return;
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.add('bg-indigo-50'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.remove('bg-indigo-50'), false);
+        });
+        dropzone.addEventListener('drop', handleDrop, false);
+    }
+    
+    function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+    function handleDrop(e) { window.handleFileChange({ target: e.dataTransfer }); }
+
+    function toggleSidebar(open) {
+        state.isSidebarOpen = open;
+        if (open) {
+            DOMElements.sidebar.classList.remove('-translate-x-full');
+        } else {
+            DOMElements.sidebar.classList.add('-translate-x-full');
+        }
+    }
+    
+    window.handleFileChange = (event) => {
+        const files = event.target.files || event.dataTransfer.files;
+        Array.from(files).forEach(f => {
+            for (const [k, m] of Object.entries(CONSTANTS.FILE_METADATA)) {
+                if (f.name.includes(m.name)) {
+                    state.files[k] = f;
+                    break;
+                }
+            }
+        });
+        processFilesWithDebounce();
+    };
     window.handleAcademicInfoChange = (field,value) => {state.academicInfo[field]=(field==='subject')?value:(parseInt(value,10)||state.academicInfo[field]);if(state.files.roster){processFilesWithDebounce();}};
     window.handleLogoChange = (event) => { if (event.target.files && event.target.files[0]) { const r = new FileReader(); r.onload = (e) => { state.logoSrc = e.target.result; render(); }; r.readAsDataURL(event.target.files[0]); }};
     window.handleWeightChange = (exam, value) => { state.analysisSettings.weights[exam] = Math.max(0, Math.min(100, parseInt(value, 10) || 0)); reAnalyzeData(); };
@@ -202,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.handleSort = (key) => { let dir = 'asc'; if (state.sortConfig?.key === key && state.sortConfig.direction === 'asc') { dir = 'desc'; } state.sortConfig = { key, direction: dir }; render(); };
     window.exportToCSV = () => { const{academicInfo,activeStatTab}=state;const studentsToExport=getSortedStudents(getFilteredStudents().filter(student=>student.scores[activeStatTab]!==null));const cols={total:[{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.midterm',l:'중간'},{k:'scores.final',l:'기말'},{k:'scores.performance',l:'수행'},{k:'scores.total',l:'합계'},{k:'ranks.total',l:'석차'},{k:'grades.total',l:'등급'},{k:'achievements.total',l:'성취도'}],midterm:[{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.midterm',l:'점수'},{k:'ranks.midterm',l:'석차'},{k:'grades.midterm',l:'등급'},{k:'achievements.midterm',l:'성취도'}],final:[{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.final',l:'점수'},{k:'ranks.final',l:'석차'},{k:'grades.final',l:'등급'},{k:'achievements.final',l:'성취도'}]}[activeStatTab];const info=[`학년도,${academicInfo.year}`,`학기,${academicInfo.semester}`,`학년,${academicInfo.grade}`,`과목,"${academicInfo.subject||''}"`].join('\n');const headers=cols.map(c=>`"${c.l}"`).join(',');const getVal=(o,p)=>p.split('.').reduce((a,c)=>(a||{})[c],o);const rows=studentsToExport.map(s=>cols.map(c=>{const v=getVal(s,c.k);const f=typeof v==='number'&&!Number.isInteger(v)?v.toFixed(2):(v??'');return `"${String(f).replace(/"/g,'""')}"`;}).join(','));const link=document.createElement("a");link.href=encodeURI("data:text/csv;charset=utf-8,"+'\uFEFF'+info+'\n\n'+headers+'\n'+rows.join('\n'));link.download=`성적분석_${academicInfo.year}_${academicInfo.semester}학기_${academicInfo.subject||'과목'}_${activeStatTab}.csv`;link.click();};
 
+    // --- Data Processing (largely unchanged logic) ---
     let debounceTimer;
     function processFilesWithDebounce() { clearTimeout(debounceTimer); debounceTimer = setTimeout(processFiles, 500); }
     async function processFiles() {
@@ -261,11 +375,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function cleanScore(s){const n=parseFloat(s);return (s==null||String(s).trim()===''||isNaN(n))?null:n;}
     function calculateStats(students, key){if(!students.length)return{mean:0,stdDev:0,count:0};const scores=students.map(s=>s.scores[key]).filter(s=>s!=null&&!isNaN(s));if(!scores.length)return{mean:0,stdDev:0,count:0};const count=scores.length,mean=scores.reduce((a,b)=>a+b,0)/count,stdDev=Math.sqrt(scores.map(x=>Math.pow(x-mean,2)).reduce((a,b)=>a+b,0)/count);return{mean,stdDev,count};}
     
+    // --- Initializer ---
+    setupEventListeners();
     render();
-
 });
 </script>
 </body>
 </html>
-
 
