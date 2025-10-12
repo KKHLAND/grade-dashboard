@@ -18,7 +18,7 @@
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800 antialiased">
+<body class="bg-white text-slate-800 antialiased">
     <div id="app" class="flex h-screen">
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white w-96 h-screen shadow-xl z-20 transform -translate-x-full md:relative md:translate-x-0 flex flex-col">
@@ -34,12 +34,12 @@
                 </button>
             </header>
             
-            <div id="sidebar-content" class="flex-grow overflow-y-auto p-6 space-y-8 bg-slate-50"></div>
+            <div id="sidebar-content" class="flex-grow overflow-y-auto p-6 space-y-8 bg-sky-50"></div>
         </aside>
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between p-4 bg-white border-b border-slate-200 flex-shrink-0 shadow-sm">
+            <header class="flex items-center justify-between p-4 bg-sky-50 border-b border-slate-200 flex-shrink-0">
                 <div class="flex items-center gap-4">
                      <button id="open-sidebar-btn" class="md:hidden p-1 rounded-full text-slate-500 hover:bg-slate-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -109,8 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input id="file-upload" type="file" multiple accept=".csv" class="hidden">
             </label>
             <div class="grid grid-cols-2 gap-2 text-sm">${Object.entries(CONSTANTS.FILE_METADATA).map(([k, {label}]) => `<div class="flex items-center gap-2 p-2 rounded-md ${files[k]?'bg-green-100 text-green-700':'bg-white border'}">${files[k]?'<svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>':'<div class="w-4 h-4 border-2 border-slate-300 rounded-full"></div>'}<span>${label}</span></div>`).join('')}</div>
-            <div class="text-xs text-slate-500 space-y-2 pt-2">
-                <p><strong>참고:</strong> 파일 이름에 '명렬표', '중간', '기말', '수행'이 포함되어야 합니다. 또한, 성적 파일에 누락된 학생 번호는 명렬표와 동일하게 빈 칸으로 채워주세요.</p>
+            <div class="text-xs text-red-700 space-y-1 bg-red-50 p-3 rounded-md border border-red-300">
+                <p class="font-bold">참고 사항:</p>
+                <ol class="list-decimal list-inside space-y-1">
+                    <li>업로드할 파일은 <strong>CSV (UTF-8)</strong> 형식이어야 합니다.</li>
+                    <li>파일 이름에 '명렬표', '중간', '기말', '수행'이 포함되어야 합니다.</li>
+                    <li>성적 파일에는 명렬표와 동일하게 모든 학생 번호가 있어야 하고, 성적이 없는 학생은 그냥 빈 칸으로 남겨 놓으세요.</li>
+                </ol>
             </div>
         </div>`;
 
@@ -172,12 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DOMElements.academicInfoContainer.innerHTML = fields.map(f => `<div class="flex items-center">
             <label class="text-sm font-medium text-slate-600 mr-2">${f.label}</label>
-            <input type="${f.type}" value="${f.value}" ${f.p ? `placeholder="${f.p}"` : ''} class="w-24 bg-slate-100 p-1.5 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" onchange="window.handleAcademicInfoChange('${f.id}', this.value)">
+            <input type="${f.type}" value="${f.value}" ${f.p ? `placeholder="${f.p}"` : ''} class="w-24 bg-white p-1.5 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" onchange="window.handleAcademicInfoChange('${f.id}', this.value)">
         </div>`).join('');
         
         DOMElements.logoContainer.innerHTML = `<label for="logo-upload" class="cursor-pointer group flex items-center justify-center">
             <img id="logo-preview" src="${logoSrc || ''}" alt="School Logo" class="${logoSrc ? '' : 'hidden'} h-9 w-auto object-contain" />
-            <div id="logo-placeholder" class="${logoSrc ? 'hidden' : ''} h-9 w-24 rounded-md bg-slate-200 flex items-center justify-center ring-1 ring-slate-300 group-hover:ring-indigo-500">
+            <div id="logo-placeholder" class="${logoSrc ? 'hidden' : ''} h-9 w-24 rounded-md bg-white border flex items-center justify-center ring-1 ring-slate-300 group-hover:ring-indigo-500">
                 <span class="text-xs font-semibold text-slate-500 text-center">로고 업로드</span>
             </div>
             <input id="logo-upload" type="file" accept="image/*" class="hidden" />
