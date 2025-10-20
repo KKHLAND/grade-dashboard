@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${gradeTierToggleHTML}
             <div class="grid grid-cols-2 gap-2 text-sm">
                 <button onclick="window.handleSettingsChange('gradingSystem','relative')" class="py-2 font-semibold rounded-md transition-colors ${s.gradingSystem==='relative'?`${activeBgClass} text-white`:'bg-white border hover:bg-slate-100'}">상대평가 (등급)</button>
-                <button onclick="window.handleSettingsChange('gradingSystem','absolute')" class="py-2 font-semibold rounded-md transition-colors ${s.gradingSystem==='absolute'?`${activeBgClass} text-white`:'bg-white border hover:bg-slate-100'}">절대평가 (성취도)</button>
+                <button onclick="window.handleSettingsChange('gradingSystem','absolute')" class="py-2 font-semibold rounded-md transition-colors ${s.gradingSystem==='absolute'?`${activeBgClass} text-white`:'bg-white border hover:bg-slate-100'}">성취도 (분할점수)</button>
             </div>
             ${s.gradingSystem==='absolute'?`<div class="space-y-2 p-3 ${lightBgClass} ${lightBorderClass} rounded-lg pt-4"><p class="font-medium ${lightTextClass} text-center text-sm">성취도 분할 점수 (${CONSTANTS.TABS[activeStatTab]})</p><div class="grid grid-cols-3 gap-2 mt-2">${cutoffsHTML}</div></div>`:''}
         </div>`;
@@ -435,3 +435,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
