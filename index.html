@@ -25,7 +25,6 @@
 </head>
 <body class="bg-white text-slate-800 antialiased">
     <div id="app" class="flex h-screen">
-        <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white w-96 h-screen shadow-xl z-20 transform -translate-x-full md:relative md:translate-x-0 flex flex-col">
             <header class="flex items-center justify-between p-4 bg-gradient-to-br from-cyan-600 to-indigo-600 text-white flex-shrink-0">
                 <div class="flex items-center gap-3">
@@ -42,7 +41,6 @@
             <div id="sidebar-content" class="flex-grow overflow-y-auto p-6 space-y-8 bg-sky-50"></div>
         </aside>
 
-        <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
             <header class="flex items-center justify-between p-4 bg-sky-50 border-b border-slate-200 flex-shrink-0">
                 <div class="flex items-center gap-4">
@@ -55,8 +53,7 @@
             </header>
             
             <main id="dashboard-container" class="flex-1 overflow-y-auto p-6 lg:p-8">
-                <!-- Dashboard content will be rendered here -->
-            </main>
+                </main>
         </div>
     </div>
 
@@ -68,10 +65,28 @@ document.addEventListener('DOMContentLoaded', () => {
         DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER: { A: 85, B: 70, C: 60, D: 45, E: 30, I: 0 }, 
         FILE_METADATA: { roster: { name: '명렬표', label: '명렬표' }, midterm: { name: '중간', label: '중간고사' }, final: { name: '기말', label: '기말고사' }, performance: { name: '수행', label: '수행평가' } }, TABS: { midterm: '중간고사', final: '기말고사', total: '합산 점수' }, TABS_ORDER: ['midterm', 'final', 'total'] };
     
-    let state = { files: {}, excelFiles: {}, logoSrc: null, academicInfo: { year: new Date().getFullYear(), semester: 1, grade: 1, subject: '' }, analysisSettings: { weights: { midterm: 30, final: 30, performance: 40 }, gradingSystem: 'relative', gradeTiers: 9, 
-        achievementCutoffs9Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER} },
-        achievementCutoffs5Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER} }
-    }, filters: { classes: [], grades: [] }, activeStatTab: 'midterm', allStudents: [], classList: [], analysisError: null, isProcessing: false, isReady: false, sortConfig: { key: 'ranks.midterm', direction: 'asc' }, isSidebarOpen: false };
+    let state = { 
+        files: { roster: null, midterm: null, final: null, performance: [] }, // MOD: performance is array
+        excelFiles: { midterm: null, final: null, performance: [] }, // MOD: performance is array
+        logoSrc: null, 
+        academicInfo: { year: new Date().getFullYear(), semester: 1, grade: 1, subject: '' }, 
+        analysisSettings: { 
+            weights: { midterm: 30, final: 30, performance: 40 }, 
+            gradingSystem: 'relative', 
+            gradeTiers: 9, 
+            achievementCutoffs9Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER} },
+            achievementCutoffs5Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER} }
+        }, 
+        filters: { classes: [], grades: [] }, 
+        activeStatTab: 'midterm', 
+        allStudents: [], 
+        classList: [], 
+        analysisError: null, 
+        isProcessing: false, 
+        isReady: false, 
+        sortConfig: { key: 'ranks.midterm', direction: 'asc' }, 
+        isSidebarOpen: false 
+    };
     
     const DOMElements = { 
         sidebarContent: document.getElementById('sidebar-content'),
@@ -137,19 +152,20 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>`;
 
+        // --- MOD: Updated Excel Upload HTML ---
         const excelUploadHTML = `<div class="space-y-3">
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
                 <p class="font-semibold mb-1">💡 나이스 엑셀 업로드 방법</p>
                 <ul class="text-xs space-y-1">
                     <li>• 나이스에서 다운로드한 엑셀 파일을 그대로 업로드</li>
                     <li>• 학년도, 학기, 학년, 과목이 <strong>자동으로 추출</strong>됩니다</li>
-                    <li>• 중간고사, 기말고사, 수행평가 각각 업로드</li>
+                    <li>• 중간, 기말, 수행평가(여러 개 가능) 각각 업로드</li>
                 </ul>
             </div>
-            ${['midterm', 'final', 'performance'].map(type => {
+            ${['midterm', 'final'].map(type => {
                 const hasFile = !!state.excelFiles[type];
                 const fileName = hasFile ? state.excelFiles[type].name : '';
-                const label = {midterm:'중간고사', final:'기말고사', performance:'수행평가'}[type];
+                const label = {midterm:'중간고사', final:'기말고사'}[type];
                 return `<div class="file-upload-area rounded-lg p-4 cursor-pointer" onclick="document.getElementById('excel-${type}').click()">
                     <input id="excel-${type}" type="file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelFileSelect(event, '${type}')">
                     <div class="flex items-center gap-3">
@@ -161,7 +177,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>`;
             }).join('')}
+            
+            <div class="file-upload-area rounded-lg p-4 cursor-pointer" onclick="document.getElementById('excel-performance').click()">
+                <input id="excel-performance" type="file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelFileSelect(event, 'performance')" multiple>
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <div class="flex-1">
+                        <p class="text-sm text-slate-600">수행평가 (.xlsx, .xls)</p>
+                        <p class="text-xs text-slate-400">클릭하여 파일 선택 (여러 개 가능)</p>
+                    </div>
+                </div>
+            </div>
+            ${(Array.isArray(state.excelFiles.performance) && state.excelFiles.performance.length > 0) ? `
+                <div class="mt-2 space-y-2">
+                    ${state.excelFiles.performance.map((file, index) => `
+                        <div class="flex items-center gap-2 p-2 rounded-md bg-green-50 text-green-700">
+                            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 flex-shrink-0"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                            <span class="text-xs font-medium flex-1 truncate" title="${file.name}">${file.name}</span>
+                            <button onclick="event.stopPropagation(); removeExcelFile('performance', ${index})" class="text-red-500 hover:text-red-700 ml-auto flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
         </div>`;
+        // --- END MOD ---
 
         const weightsHTML = `<div class="space-y-4">${Object.keys(s.weights).map(k => `<div><div class="flex justify-between mb-1"><label class="font-medium text-sm">${{midterm:"중간고사",final:"기말고사",performance:"수행평가"}[k]}</label><div class="flex items-center"><input type="number" min="0" max="100" value="${s.weights[k]}" onchange="window.handleWeightChange('${k}',this.value)" class="w-16 p-1 bg-white border border-slate-300 rounded-md text-center text-sm"><span class="ml-2 font-semibold">%</span></div></div><input type="range" min="0" max="100" value="${s.weights[k]}" oninput="window.handleWeightChange('${k}',this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"></div>`).join('')}${totalWeight!==100?`<p class="text-xs text-center p-2 rounded-md ${totalWeight>100?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}">총합은 100%여야 합니다. (현재: ${totalWeight}%)</p>`:''}</div>`;
 
@@ -252,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (state.isReady) {
             const { allStudents, activeStatTab } = state;
             const stats = calculateStats(allStudents, activeStatTab);
-            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = (tab==='midterm'&&state.files.midterm)||(tab==='final'&&state.files.final)||(tab==='total'&&state.files.midterm&&state.files.final&&state.files.performance); return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors ${activeStatTab===tab&&isEnabled?'border-indigo-500 text-indigo-600':'border-transparent text-slate-500 hover:text-slate-800'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}" ${!isEnabled?'disabled':''}>${CONSTANTS.TABS[tab]}</button>`; }).join('');
+            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = (tab==='midterm'&&state.files.midterm)||(tab==='final'&&state.files.final)||(tab==='total'&&state.files.midterm&&state.files.final&&(Array.isArray(state.files.performance) && state.files.performance.length > 0)); return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors ${activeStatTab===tab&&isEnabled?'border-indigo-500 text-indigo-600':'border-transparent text-slate-500 hover:text-slate-800'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}" ${!isEnabled?'disabled':''}>${CONSTANTS.TABS[tab]}</button>`; }).join('');
             const studentsForTable = getFilteredStudents().filter(student => student.scores[activeStatTab] !== null);
             const tableHTML = renderStudentDataTable(getSortedStudents(studentsForTable), allStudents.length);
             
@@ -439,37 +480,116 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Data Processing (largely unchanged logic) ---
     let debounceTimer;
     function processFilesWithDebounce() { clearTimeout(debounceTimer); debounceTimer = setTimeout(processFiles, 500); }
+    
+    // --- MOD: Updated processFiles ---
     async function processFiles() {
         if (!state.files.roster) { return; }
         Object.assign(state, { isProcessing: true, analysisError: null, isReady: false }); render();
         try {
-            const fileTexts={};for(const k in state.files){fileTexts[k]=await state.files[k].text();}
+            const fileTexts = {
+                roster: await state.files.roster.text(),
+                midterm: state.files.midterm ? await state.files.midterm.text() : null,
+                final: state.files.final ? await state.files.final.text() : null,
+                // 'performance' is an array of text contents
+                performance: Array.isArray(state.files.performance) 
+                    ? await Promise.all(state.files.performance.map(f => f.text())) 
+                    : [] 
+            };
+
             const rosterCSV = parseCSV(fileTexts.roster); if (rosterCSV.length < 2) throw new Error("명렬표 파일에 헤더와 학생 데이터가 필요합니다.");
-            const midtermData=fileTexts.midterm?parseCSV(fileTexts.midterm):[],finalData=fileTexts.final?parseCSV(fileTexts.final):[],performanceData=fileTexts.performance?parseCSV(fileTexts.performance):[];
+            const midtermData=fileTexts.midterm?parseCSV(fileTexts.midterm):[],finalData=fileTexts.final?parseCSV(fileTexts.final):[];
+            
+            // --- MOD: Merge multiple performance data files ---
+            let mergedPerformanceData = [];
+            let performanceHeaderMap = new Map(); // To map column index to class number
+            let performanceScores = {}; // { 'studentNum': { 'classNum': totalScore } }
+
+            if (fileTexts.performance.length > 0) {
+                for (const perfText of fileTexts.performance) {
+                    const csv = parseCSV(perfText);
+                    if (csv.length < 2) continue; // Skip empty/invalid files
+                    
+                    const header = csv[0];
+                    const body = csv.slice(1);
+                    const currentFileClassMap = new Map(); // { classNum: colIndex }
+                    
+                    header.forEach((h, i) => {
+                        const classNum = parseInt(h.trim());
+                        if (!isNaN(classNum)) {
+                            currentFileClassMap.set(String(classNum), i);
+                            performanceHeaderMap.set(String(classNum), 0); // Just to collect all class numbers
+                        }
+                    });
+
+                    body.forEach(row => {
+                        const studentNum = row[0]?.trim();
+                        if (!studentNum || isNaN(parseInt(studentNum))) return;
+
+                        if (!performanceScores[studentNum]) {
+                            performanceScores[studentNum] = {};
+                        }
+
+                        currentFileClassMap.forEach((colIndex, classNum) => {
+                            const score = cleanScore(row[colIndex]);
+                            if (score !== null) {
+                                if (!performanceScores[studentNum][classNum]) {
+                                    performanceScores[studentNum][classNum] = 0;
+                                }
+                                performanceScores[studentNum][classNum] += score;
+                            }
+                        });
+                    });
+                }
+
+                // Reconstruct a CSV-like array structure from the merged scores
+                const sortedClasses = Array.from(performanceHeaderMap.keys()).sort((a,b) => parseInt(a) - parseInt(b));
+                const sortedStudentNums = Object.keys(performanceScores).sort((a,b) => parseInt(a) - parseInt(b));
+                
+                // Create header row
+                mergedPerformanceData.push(['번호 / 반', ...sortedClasses]);
+                
+                // Create data rows
+                sortedStudentNums.forEach(studentNum => {
+                    const row = [studentNum];
+                    sortedClasses.forEach(classNum => {
+                        // Push the summed score, or null if no score
+                        row.push(performanceScores[studentNum][classNum] ?? null);
+                    });
+                    mergedPerformanceData.push(row);
+                });
+            }
+            // --- End of MOD ---
+
             const classHeaders=rosterCSV[0],rosterBody=rosterCSV.slice(1);
-            const scoreHeaders={midterm:midtermData[0]||null,final:finalData[0]||null,performance:performanceData[0]||null};
-            const scoreBodies={midterm:midtermData.slice(1),final:finalData.slice(1),performance:performanceData.slice(1)};
+            const scoreHeaders={midterm:midtermData[0]||null,final:finalData[0]||null,performance:mergedPerformanceData[0]||null};
+            const scoreBodies={midterm:midtermData.slice(1),final:finalData.slice(1),performance:mergedPerformanceData.slice(1)};
+            
             const classColMap=new Map(); classHeaders.forEach((h,i)=>{if(i>0&&h.trim()&&!isNaN(parseInt(h.trim()))){classColMap.set(h.trim(),i);}});
             if(classColMap.size===0)throw new Error("명렬표 CSV 헤더에서 숫자 형식의 반 정보를 찾을 수 없습니다.");
             const {grade}=state.academicInfo; const rawStudentData=[],classes=new Set();
             rosterBody.forEach((row,rowIndex)=>{ const studentNum=row[0];if(!studentNum||!studentNum.trim())return; for(const [classNumStr,colIndex] of classColMap.entries()){ const studentName=row[colIndex]; if(studentName&&studentName.trim()){ const className=`${grade}${String(classNumStr).padStart(2,'0')}`; classes.add(className); const findScore=(k)=>{const h=scoreHeaders[k],b=scoreBodies[k];if(!h||!b[rowIndex])return;const i=h.findIndex(x=>x.trim()===classNumStr);return i!==-1?b[rowIndex][i]:undefined;}; rawStudentData.push({studentId:`${className}${String(studentNum).padStart(2,'0')}`,name:studentName.trim(),class:className,number:studentNum.trim(),midtermScore:cleanScore(findScore('midterm')),finalScore:cleanScore(findScore('final')),performanceScore:cleanScore(findScore('performance'))});}}});
             if(rawStudentData.length===0)throw new Error("CSV에서 학생 데이터를 추출하지 못했습니다. 파일 형식을 확인하세요.");
             const analyzedStudents = analyzeData(rawStudentData, state.analysisSettings);
+            
             const enabledTabs=[];
             if(state.files.midterm) enabledTabs.push('midterm');
             if(state.files.final) enabledTabs.push('final');
-            if(state.files.midterm && state.files.final && state.files.performance) enabledTabs.push('total');
+            // MOD: Check if performance array has files
+            if(state.files.midterm && state.files.final && Array.isArray(state.files.performance) && state.files.performance.length > 0) enabledTabs.push('total');
+            
             if (enabledTabs.length > 0 && !enabledTabs.includes(state.activeStatTab)) { state.activeStatTab = enabledTabs[0]; state.sortConfig = { key: `ranks.${enabledTabs[0]}`, direction: 'asc' }; }
             Object.assign(state,{allStudents:analyzedStudents,classList:Array.from(classes).sort(),isReady:true});
         } catch(error){console.error("CRITICAL ERROR:",error);Object.assign(state,{analysisError:error.message,allStudents:[],classList:[],isReady:false});}
         finally {state.isProcessing = false; render();}
     }
+
     function reAnalyzeData() { if (state.allStudents.length > 0) { const rawData = state.allStudents.map(s => ({ studentId:s.studentId, name:s.name, class:s.class, number:s.number, midtermScore:s.scores.midterm, finalScore:s.scores.final, performanceScore:s.scores.performance })); state.allStudents = analyzeData(rawData, state.analysisSettings); } render(); }
     function analyzeData(rawData, settings) {
         const studentsWithScores = rawData.map(s => {
             const { midtermScore, finalScore, performanceScore } = s;
             const { weights } = settings;
             let total = null;
+            // MOD: Check for performanceScore !== null (which is 0 for non-participants, but not null)
             if (midtermScore !== null && finalScore !== null && performanceScore !== null) { total = (midtermScore * weights.midterm / 100) + (finalScore * weights.final / 100) + performanceScore; } 
             else if (midtermScore !== null && performanceScore !== null && weights.final === 0) { total = (midtermScore * weights.midterm / 100) + performanceScore; } 
             else if (finalScore !== null && performanceScore !== null && weights.midterm === 0) { total = (finalScore * weights.final / 100) + performanceScore; }
@@ -500,30 +620,56 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     
     // --- Excel File Handling ---
+
+    // --- MOD: Updated handleExcelFileSelect ---
     window.handleExcelFileSelect = async function(e, type) {
-        const file = e.target.files[0];
-        if (!file) return;
+        const files = e.target.files; // This is a FileList
+        if (!files || files.length === 0) return;
         
         try {
             state.isProcessing = true;
             render();
             
-            const result = await parseExcelFile(file);
-            const { metadata, csvData } = result;
-            
-            // Update academic info from metadata
-            if (metadata.year) state.academicInfo.year = metadata.year;
-            if (metadata.semester) state.academicInfo.semester = metadata.semester;
-            if (metadata.grade) state.academicInfo.grade = metadata.grade;
-            if (metadata.subject) state.academicInfo.subject = metadata.subject;
-            
-            // Store Excel file
-            state.excelFiles[type] = file;
-            
-            // Convert to CSV File object
-            const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-            const csvFile = new File([csvBlob], `${type}_parsed.csv`, { type: 'text/csv' });
-            state.files[type] = csvFile;
+            if (type === 'performance') {
+                // Initialize if it doesn't exist
+                if (!Array.isArray(state.excelFiles.performance)) state.excelFiles.performance = [];
+                if (!Array.isArray(state.files.performance)) state.files.performance = [];
+                
+                for (const file of files) {
+                    const result = await parseExcelFile(file);
+                    const { metadata, csvData } = result;
+                    
+                    // Update academic info from metadata
+                    if (metadata.year) state.academicInfo.year = metadata.year;
+                    if (metadata.semester) state.academicInfo.semester = metadata.semester;
+                    if (metadata.grade) state.academicInfo.grade = metadata.grade;
+                    if (metadata.subject) state.academicInfo.subject = metadata.subject;
+                    
+                    state.excelFiles.performance.push(file);
+                    
+                    const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+                    // Use file.name to distinguish parsed files
+                    const csvFile = new File([csvBlob], `${file.name}_parsed.csv`, { type: 'text/csv' });
+                    state.files.performance.push(csvFile);
+                }
+            } else {
+                // Midterm or Final (single file)
+                const file = files[0];
+                const result = await parseExcelFile(file);
+                const { metadata, csvData } = result;
+                
+                // Update academic info from metadata
+                if (metadata.year) state.academicInfo.year = metadata.year;
+                if (metadata.semester) state.academicInfo.semester = metadata.semester;
+                if (metadata.grade) state.academicInfo.grade = metadata.grade;
+                if (metadata.subject) state.academicInfo.subject = metadata.subject;
+                
+                state.excelFiles[type] = file;
+                
+                const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+                const csvFile = new File([csvBlob], `${type}_parsed.csv`, { type: 'text/csv' });
+                state.files[type] = csvFile;
+            }
             
             processFilesWithDebounce();
         } catch (error) {
@@ -534,12 +680,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    window.removeExcelFile = function(type) {
-        delete state.excelFiles[type];
-        delete state.files[type];
+    // --- MOD: Updated removeExcelFile ---
+    window.removeExcelFile = function(type, index) { // Added index parameter
+        if (type === 'performance') {
+            if (Array.isArray(state.excelFiles.performance)) {
+                state.excelFiles.performance.splice(index, 1);
+            }
+            if (Array.isArray(state.files.performance)) {
+                state.files.performance.splice(index, 1);
+            }
+        } else {
+            // For midterm/final, index is not used
+            delete state.excelFiles[type];
+            delete state.files[type];
+        }
         processFilesWithDebounce();
     };
     
+    // --- MOD: Updated parseExcelFile ---
     async function parseExcelFile(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -569,7 +727,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (gradeMatch) metadata.grade = parseInt(gradeMatch[1]);
                             if (subjectMatch) {
                                 let subject = subjectMatch[1].trim();
-                                // If subject contains ":", take the part after the last ":"
                                 if (subject.includes(':')) {
                                     const parts = subject.split(':');
                                     subject = parts[parts.length - 1].trim();
@@ -605,16 +762,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Extract student data
                     const students = [];
                     const dataStartRow = headerRowIndex + 1;
+                    
+                    // --- MOD: Changed loop to use 'continue' instead of 'break' ---
+                    // This allows skipping summary rows (like "합계") or empty rows
+                    // and continuing to parse until the end of the sheet.
                     for (let i = dataStartRow; i < jsonData.length; i++) {
                         const row = jsonData[i];
-                        if (!row || !row[1]) break;
-                        const studentNum = row[1];
-                        if (studentNum === null || studentNum === undefined) break;
+                        if (!row) continue; // Skip completely empty rows
+                        
+                        const studentNum = row[1]; // '번호' column
+                        // Skip if student number is empty, null, or undefined
+                        if (studentNum === null || studentNum === undefined || String(studentNum).trim() === '') {
+                            continue; 
+                        }
+                        
                         let numVal;
                         try {
                             numVal = parseInt(studentNum);
-                            if (isNaN(numVal)) break;
-                        } catch { break; }
+                            // If it's not a number (e.g., "합계", "평균"), skip this row
+                            if (isNaN(numVal)) {
+                                continue; 
+                            }
+                        } catch { 
+                            continue; // Skip if parsing fails
+                        }
                         
                         const studentData = { number: numVal, scores: {} };
                         classMap.forEach((colIdx, classNum) => {
@@ -624,6 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         students.push(studentData);
                     }
+                    // --- End of MOD ---
                     
                     // Convert to CSV format
                     const header = ['번호 / 반', ...Array.from(classMap.keys()).sort((a, b) => a - b).map(String)];
