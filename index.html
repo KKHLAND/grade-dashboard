@@ -152,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>`;
 
-        // --- MOD: Updated Excel Upload HTML ---
         const excelUploadHTML = `<div class="space-y-3">
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
                 <p class="font-semibold mb-1">💡 나이스 엑셀 업로드 방법</p>
@@ -202,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             ` : ''}
         </div>`;
-        // --- END MOD ---
 
         const weightsHTML = `<div class="space-y-4">${Object.keys(s.weights).map(k => `<div><div class="flex justify-between mb-1"><label class="font-medium text-sm">${{midterm:"중간고사",final:"기말고사",performance:"수행평가"}[k]}</label><div class="flex items-center"><input type="number" min="0" max="100" value="${s.weights[k]}" onchange="window.handleWeightChange('${k}',this.value)" class="w-16 p-1 bg-white border border-slate-300 rounded-md text-center text-sm"><span class="ml-2 font-semibold">%</span></div></div><input type="range" min="0" max="100" value="${s.weights[k]}" oninput="window.handleWeightChange('${k}',this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"></div>`).join('')}${totalWeight!==100?`<p class="text-xs text-center p-2 rounded-md ${totalWeight>100?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}">총합은 100%여야 합니다. (현재: ${totalWeight}%)</p>`:''}</div>`;
 
@@ -499,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const rosterCSV = parseCSV(fileTexts.roster); if (rosterCSV.length < 2) throw new Error("명렬표 파일에 헤더와 학생 데이터가 필요합니다.");
             const midtermData=fileTexts.midterm?parseCSV(fileTexts.midterm):[],finalData=fileTexts.final?parseCSV(fileTexts.final):[];
             
-            // --- MOD: Merge multiple performance data files ---
             let mergedPerformanceData = [];
             let performanceHeaderMap = new Map(); // To map column index to class number
             let performanceScores = {}; // { 'studentNum': { 'classNum': totalScore } }
@@ -530,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         currentFileClassMap.forEach((colIndex, classNum) => {
-                            const score = cleanScore(row[colIndex]);
+                            const score = cleanScore(row[colIndex]); // MOD: Uses new cleanScore
                             if (score !== null) {
                                 if (!performanceScores[studentNum][classNum]) {
                                     performanceScores[studentNum][classNum] = 0;
@@ -552,8 +549,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 sortedStudentNums.forEach(studentNum => {
                     const row = [studentNum];
                     sortedClasses.forEach(classNum => {
-                        // Push the summed score, or null if no score
-                        row.push(performanceScores[studentNum][classNum] ?? null);
+                        // --- MOD: Cap summed performance score at 100 ---
+                        let summedScore = performanceScores[studentNum][classNum] ?? null;
+                        if (summedScore !== null) {
+                            if (summedScore > 100) summedScore = 100;
+                            // Min 0 is already handled by cleanScore
+                        }
+                        row.push(summedScore);
+                        // --- END MOD ---
                     });
                     mergedPerformanceData.push(row);
                 });
@@ -567,14 +570,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const classColMap=new Map(); classHeaders.forEach((h,i)=>{if(i>0&&h.trim()&&!isNaN(parseInt(h.trim()))){classColMap.set(h.trim(),i);}});
             if(classColMap.size===0)throw new Error("명렬표 CSV 헤더에서 숫자 형식의 반 정보를 찾을 수 없습니다.");
             const {grade}=state.academicInfo; const rawStudentData=[],classes=new Set();
-            rosterBody.forEach((row,rowIndex)=>{ const studentNum=row[0];if(!studentNum||!studentNum.trim())return; for(const [classNumStr,colIndex] of classColMap.entries()){ const studentName=row[colIndex]; if(studentName&&studentName.trim()){ const className=`${grade}${String(classNumStr).padStart(2,'0')}`; classes.add(className); const findScore=(k)=>{const h=scoreHeaders[k],b=scoreBodies[k];if(!h||!b[rowIndex])return;const i=h.findIndex(x=>x.trim()===classNumStr);return i!==-1?b[rowIndex][i]:undefined;}; rawStudentData.push({studentId:`${className}${String(studentNum).padStart(2,'0')}`,name:studentName.trim(),class:className,number:studentNum.trim(),midtermScore:cleanScore(findScore('midterm')),finalScore:cleanScore(findScore('final')),performanceScore:cleanScore(findScore('performance'))});}}});
+            rosterBody.forEach((row,rowIndex)=>{ const studentNum=row[0];if(!studentNum||!studentNum.trim())return; for(const [classNumStr,colIndex] of classColMap.entries()){ const studentName=row[colIndex]; if(studentName&&studentName.trim()){ const className=`${grade}${String(classNumStr).padStart(2,'0')}`; classes.add(className); 
+                const findScore=(k)=>{
+                    const h=scoreHeaders[k],b=scoreBodies[k];
+                    if(!h||!b[rowIndex])return;
+                    const i=h.findIndex(x=>x.trim()===classNumStr);
+                    return i!==-1?b[rowIndex][i]:undefined;
+                }; 
+                    
+                // --- MOD: Cap midterm and final scores at 100 ---
+                let mtScore = cleanScore(findScore('midterm'));
+                if (mtScore > 100) mtScore = 100; 
+
+                let fnScore = cleanScore(findScore('final'));
+                if (fnScore > 100) fnScore = 100; 
+
+                rawStudentData.push({
+                    studentId:`${className}${String(studentNum).padStart(2,'0')}`,
+                    name:studentName.trim(),
+                    class:className,
+                    number:studentNum.trim(),
+                    midtermScore: mtScore, // Use capped score
+                    finalScore: fnScore, // Use capped score
+                    performanceScore:cleanScore(findScore('performance')) // Use cleaned (and capped sum) score
+                });
+                // --- END MOD ---
+            }}});
             if(rawStudentData.length===0)throw new Error("CSV에서 학생 데이터를 추출하지 못했습니다. 파일 형식을 확인하세요.");
             const analyzedStudents = analyzeData(rawStudentData, state.analysisSettings);
             
             const enabledTabs=[];
             if(state.files.midterm) enabledTabs.push('midterm');
             if(state.files.final) enabledTabs.push('final');
-            // MOD: Check if performance array has files
             if(state.files.midterm && state.files.final && Array.isArray(state.files.performance) && state.files.performance.length > 0) enabledTabs.push('total');
             
             if (enabledTabs.length > 0 && !enabledTabs.includes(state.activeStatTab)) { state.activeStatTab = enabledTabs[0]; state.sortConfig = { key: `ranks.${enabledTabs[0]}`, direction: 'asc' }; }
@@ -584,15 +611,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function reAnalyzeData() { if (state.allStudents.length > 0) { const rawData = state.allStudents.map(s => ({ studentId:s.studentId, name:s.name, class:s.class, number:s.number, midtermScore:s.scores.midterm, finalScore:s.scores.final, performanceScore:s.scores.performance })); state.allStudents = analyzeData(rawData, state.analysisSettings); } render(); }
+    
+    // --- MOD: Updated analyzeData function ---
     function analyzeData(rawData, settings) {
         const studentsWithScores = rawData.map(s => {
             const { midtermScore, finalScore, performanceScore } = s;
             const { weights } = settings;
             let total = null;
-            // MOD: Check for performanceScore !== null (which is 0 for non-participants, but not null)
-            if (midtermScore !== null && finalScore !== null && performanceScore !== null) { total = (midtermScore * weights.midterm / 100) + (finalScore * weights.final / 100) + performanceScore; } 
-            else if (midtermScore !== null && performanceScore !== null && weights.final === 0) { total = (midtermScore * weights.midterm / 100) + performanceScore; } 
-            else if (finalScore !== null && performanceScore !== null && weights.midterm === 0) { total = (finalScore * weights.final / 100) + performanceScore; }
+            
+            // MOD: Apply weights to all scores, assuming all are 0-100
+            if (midtermScore !== null && finalScore !== null && performanceScore !== null) { 
+                total = (midtermScore * weights.midterm / 100) + 
+                        (finalScore * weights.final / 100) + 
+                        (performanceScore * weights.performance / 100);
+            } 
+            else if (midtermScore !== null && performanceScore !== null && weights.final === 0) { 
+                total = (midtermScore * weights.midterm / 100) + 
+                        (performanceScore * weights.performance / 100);
+            } 
+            else if (finalScore !== null && performanceScore !== null && weights.midterm === 0) { 
+                total = (finalScore * weights.final / 100) + 
+                        (performanceScore * weights.performance / 100);
+            }
             return { ...s, scores: { midterm:midtermScore, final:finalScore, performance:performanceScore, total }};
         });
         const calculateMetrics = (scoreKey) => {
@@ -610,18 +650,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const metrics={midterm:calculateMetrics('midterm'),final:calculateMetrics('final'),total:calculateMetrics('total')};
         return studentsWithScores.map(s=>({...s, ranks:{midterm:metrics.midterm[s.studentId]?.rank??null,final:metrics.final[s.studentId]?.rank??null,total:metrics.total[s.studentId]?.rank??null}, grades:{midterm:metrics.midterm[s.studentId]?.grade??null,final:metrics.final[s.studentId]?.grade??null,total:metrics.total[s.studentId]?.grade??null}, achievements:{midterm:metrics.midterm[s.studentId]?.achievement??null,final:metrics.final[s.studentId]?.achievement??null,total:metrics.total[s.studentId]?.achievement??null}}));
     }
+    
     function getFilteredStudents() { const {allStudents,filters,analysisSettings,activeStatTab}=state; if(!filters.classes.length&&!filters.grades.length)return allStudents; return allStudents.filter(s=>{const c=!filters.classes.length||filters.classes.includes(s.class);if(!c||!filters.grades.length)return c;const g=analysisSettings.gradingSystem==='relative'?String(s.grades[activeStatTab]):s.achievements[activeStatTab];return filters.grades.includes(g);});}
     function getSortedStudents(students) { const {sortConfig}=state; if (!sortConfig || !students.length) return students; const getVal=(o,p)=>p.split('.').reduce((a,c)=>(a||{})[c],o); return [...students].sort((a,b)=>{const aVal=getVal(a,sortConfig.key),bVal=getVal(b,sortConfig.key),aNull=aVal==null,bNull=bVal==null;if(aNull||bNull)return aNull&&bNull?0:aNull?1:-1;const comp=typeof aVal==='string'?aVal.localeCompare(bVal):aVal<bVal?-1:aVal>bVal?1:0;return sortConfig.direction==='asc'?comp:-comp;});}
     function parseCSV(text){if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);const rows=[];let f='',q=!1,r=[];for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(i+1<text.length&&text[i+1]==='"'){f+='"';i++;}else{q=!1;}}else{f+=c;}}else{if(c==='"'){q=!0;}else if(c===','){r.push(f.trim());f='';}else if(c==='\n'||c==='\r'){if(f||r.length>0){r.push(f.trim());rows.push(r);}r=[];f='';if(c==='\r'&&text[i+1]==='\n'){i++;}}else{f+=c;}}}if(f||r.length>0){r.push(f.trim());rows.push(r);}return rows.filter(r=>r.length>1||(r.length===1&&r[0]));}
-    function cleanScore(s){const n=parseFloat(s);return (s==null||String(s).trim()===''||isNaN(n))?null:n;}
+    
+    // --- MOD: Updated cleanScore function ---
+    function cleanScore(s){
+        if (s == null || String(s).trim() === '') {
+            return null; // Handle empty/null explicitly
+        }
+        const n = Number(s); // Use Number() for stricter parsing (rejects "100a", "80점")
+        if (isNaN(n)) {
+            return null; // If it's not a valid number, return null
+        }
+        if (n < 0) { // Floor at 0
+            return 0;
+        }
+        // We cap at 100 in the calling functions (processFiles)
+        // because performance sum is different from midterm/final.
+        return n; // Return the number
+    }
+    
     function calculateStats(students, key){if(!students.length)return{mean:0,stdDev:0,count:0};const scores=students.map(s=>s.scores[key]).filter(s=>s!=null&&!isNaN(s));if(!scores.length)return{mean:0,stdDev:0,count:0};const count=scores.length,mean=scores.reduce((a,b)=>a+b,0)/count,stdDev=Math.sqrt(scores.map(x=>Math.pow(x-mean,2)).reduce((a,b)=>a+b,0)/count);return{mean,stdDev,count};}
     
     // --- Initializer ---
     setupEventListeners();
     
     // --- Excel File Handling ---
-
-    // --- MOD: Updated handleExcelFileSelect ---
     window.handleExcelFileSelect = async function(e, type) {
         const files = e.target.files; // This is a FileList
         if (!files || files.length === 0) return;
@@ -680,7 +736,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // --- MOD: Updated removeExcelFile ---
     window.removeExcelFile = function(type, index) { // Added index parameter
         if (type === 'performance') {
             if (Array.isArray(state.excelFiles.performance)) {
@@ -697,7 +752,6 @@ document.addEventListener('DOMContentLoaded', () => {
         processFilesWithDebounce();
     };
     
-    // --- MOD: Updated parseExcelFile ---
     async function parseExcelFile(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -763,15 +817,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const students = [];
                     const dataStartRow = headerRowIndex + 1;
                     
-                    // --- MOD: Changed loop to use 'continue' instead of 'break' ---
-                    // This allows skipping summary rows (like "합계") or empty rows
-                    // and continuing to parse until the end of the sheet.
                     for (let i = dataStartRow; i < jsonData.length; i++) {
                         const row = jsonData[i];
                         if (!row) continue; // Skip completely empty rows
                         
                         const studentNum = row[1]; // '번호' column
-                        // Skip if student number is empty, null, or undefined
                         if (studentNum === null || studentNum === undefined || String(studentNum).trim() === '') {
                             continue; 
                         }
@@ -779,7 +829,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         let numVal;
                         try {
                             numVal = parseInt(studentNum);
-                            // If it's not a number (e.g., "합계", "평균"), skip this row
                             if (isNaN(numVal)) {
                                 continue; 
                             }
@@ -790,12 +839,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const studentData = { number: numVal, scores: {} };
                         classMap.forEach((colIdx, classNum) => {
                             const score = row[colIdx];
-                            const cleanedScore = (score === null || score === undefined || score === '') ? '' : score;
+                            // MOD: Use 'String(score)' to handle numbers
+                            const cleanedScore = (score === null || score === undefined || String(score).trim() === '') ? '' : score;
                             studentData.scores[classNum] = cleanedScore;
                         });
                         students.push(studentData);
                     }
-                    // --- End of MOD ---
                     
                     // Convert to CSV format
                     const header = ['번호 / 반', ...Array.from(classMap.keys()).sort((a, b) => a - b).map(String)];
@@ -805,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         classMap.forEach((_, classNum) => {
                             rowData.push(s.scores[classNum] ?? '');
                         });
-                        csvRows.push(rowData.map(cell => `"${cell}"`).join(','));
+                        csvRows.push(rowData.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','));
                     });
                     const csvData = csvRows.join('\n');
                     
