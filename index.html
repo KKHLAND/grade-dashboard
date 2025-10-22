@@ -284,7 +284,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (state.isReady) {
             const { allStudents, activeStatTab } = state;
             const stats = calculateStats(allStudents, activeStatTab);
-            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = (tab==='midterm'&&state.files.midterm)||(tab==='final'&&state.files.final)||(tab==='total'&&state.files.midterm&&state.files.final&&state.files.performance); return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors ${activeStatTab===tab&&isEnabled?'border-indigo-500 text-indigo-600':'border-transparent text-slate-500 hover:text-slate-800'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}" ${!isEnabled?'disabled':''}>${CONSTANTS.TABS[tab]}</button>`; }).join('');
+            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = false;
+            if (tab === 'midterm') {
+                isEnabled = state.files.midterm;
+            } else if (tab === 'final') {
+                isEnabled = state.files.final;
+            } else if (tab === 'total') {
+                const wts = state.analysisSettings.weights;
+                const totWt = (wts.midterm || 0) + (wts.final || 0) + (wts.performance || 0);
+                isEnabled = totWt === 100 && allStudents.some(s => s.scores.total !== null);
+            } return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors ${activeStatTab===tab&&isEnabled?'border-indigo-500 text-indigo-600':'border-transparent text-slate-500 hover:text-slate-800'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}" ${!isEnabled?'disabled':''}>${CONSTANTS.TABS[tab]}</button>`; }).join('');
             const studentsForTable = getFilteredStudents().filter(student => student.scores[activeStatTab] !== null);
             const tableHTML = renderStudentDataTable(getSortedStudents(studentsForTable), allStudents.length);
             
@@ -488,9 +497,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if(rawStudentData.length===0)throw new Error("CSV에서 학생 데이터를 추출하지 못했습니다. 파일 형식을 확인하세요.");
             const analyzedStudents = analyzeData(rawStudentData, state.analysisSettings);
             const enabledTabs=[];
+            // 반영비율 합이 정확히 100%인지 확인
+            const weights = state.analysisSettings.weights;
+            const totalWeight = (weights.midterm || 0) + (weights.final || 0) + (weights.performance || 0);
+            const hasTotalScores = totalWeight === 100 && analyzedStudents.some(s => s.scores.total !== null);
+            
+            // 반영비율이 100%이면 'total'을 최우선으로 활성화
+            if(hasTotalScores) enabledTabs.push('total');
             if(state.files.midterm) enabledTabs.push('midterm');
             if(state.files.final) enabledTabs.push('final');
-            if(state.files.midterm && state.files.final && state.files.performance) enabledTabs.push('total');
             if (enabledTabs.length > 0 && !enabledTabs.includes(state.activeStatTab)) { state.activeStatTab = enabledTabs[0]; state.sortConfig = { key: `ranks.${enabledTabs[0]}`, direction: 'asc' }; }
             Object.assign(state,{allStudents:analyzedStudents,classList:Array.from(classes).sort(),isReady:true});
         } catch(error){console.error("CRITICAL ERROR:",error);Object.assign(state,{analysisError:error.message,allStudents:[],classList:[],isReady:false});}
@@ -502,9 +517,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const { midtermScore, finalScore, performanceScore } = s;
             const { weights } = settings;
             let total = null;
-            if (midtermScore !== null && finalScore !== null && performanceScore !== null) { total = (midtermScore * weights.midterm / 100) + (finalScore * weights.final / 100) + performanceScore; } 
-            else if (midtermScore !== null && performanceScore !== null && weights.final === 0) { total = (midtermScore * weights.midterm / 100) + performanceScore; } 
-            else if (finalScore !== null && performanceScore !== null && weights.midterm === 0) { total = (finalScore * weights.final / 100) + performanceScore; }
+            // 반영비율이 100이 되는 경우들에 대해 합산점수 계산
+            const midTermWeight = weights.midterm || 0;
+            const finalWeight = weights.final || 0;
+            const perfWeight = weights.performance || 0;
+            
+            // 모두 점수가 있는 경우 (반영비율 합 = 100)
+            if (midtermScore !== null && finalScore !== null && performanceScore !== null) { 
+                total = (midtermScore * midTermWeight / 100) + (finalScore * finalWeight / 100) + (performanceScore * perfWeight / 100); 
+            }
+            // 중간고사와 수행평가만 있고 합산이 100인 경우
+            else if (midtermScore !== null && performanceScore !== null && midTermWeight + perfWeight === 100) { 
+                total = (midtermScore * midTermWeight / 100) + (performanceScore * perfWeight / 100); 
+            }
+            // 기말고사와 수행평가만 있고 합산이 100인 경우
+            else if (finalScore !== null && performanceScore !== null && finalWeight + perfWeight === 100) { 
+                total = (finalScore * finalWeight / 100) + (performanceScore * perfWeight / 100); 
+            }
+            // 중간고사와 기말고사만 있고 합산이 100인 경우
+            else if (midtermScore !== null && finalScore !== null && midTermWeight + finalWeight === 100) { 
+                total = (midtermScore * midTermWeight / 100) + (finalScore * finalWeight / 100); 
+            }
             return { ...s, scores: { midterm:midtermScore, final:finalScore, performance:performanceScore, total }};
         });
         const calculateMetrics = (scoreKey) => {
