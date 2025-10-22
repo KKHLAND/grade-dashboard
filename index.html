@@ -865,6 +865,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                 }
                                 metadata.subject = subject;
                             }
+                            
+                            // 학년 추출 - "주간" 오른쪽에 있는 학년을 우선으로 찾음
+                            if (!metadata.grade) {
+                                // 방법1: "주간" 다음에 나오는 학년 찾기
+                                const gradeAfterWeekMatch = cellValue.match(/주간\s+(\d+)학년/);
+                                if (gradeAfterWeekMatch) {
+                                    metadata.grade = parseInt(gradeAfterWeekMatch[1]);
+                                } else {
+                                    // 방법2: 마지막 3글자에서 "X학년" 패턴 찾기
+                                    // (2025학년도가 아닌 2학년만 추출하기 위함)
+                                    const lastThreeChars = cellValue.slice(-3);
+                                    const gradeMatch = lastThreeChars.match(/(\d+)학년/);
+                                    if (gradeMatch) {
+                                        metadata.grade = parseInt(gradeMatch[1]);
+                                    }
+                                }
+                            }
                         }
                     }
                     
