@@ -950,22 +950,60 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                     
-                    // 학생 성적 데이터 추출
+                    // ===== 3️⃣ IMPROVED: 동적 데이터 범위 계산 및 응시인원 파싱 =====
+                    // [개선사항] 하드코드된 '+35' 제거, 응시인원 명시적 파싱, 데이터 검증 추가
+                    
                     const students = [];
                     const dataStartRow = headerRowIdx + 1;
                     
-                    for (let row = dataStartRow; row <= Math.min(dataStartRow + 35, range.e.r); row++) {
+                    // 1️⃣ 요약 행 위치 찾기 (응시생수, 총점, 평균)
+                    let dataEndRow = Math.min(dataStartRow + 35, range.e.r);  // 기본값
+                    let attendanceCount = null;  // 응시인원
+                    let summaryRowStart = null;
+                    
+                    for (let row = dataStartRow; row <= Math.min(dataStartRow + 40, range.e.r); row++) {
+                        const cellRef = XLSX.utils.encode_cell({r: row, c: 1});
+                        const cell = firstSheet[cellRef];
+                        if (!cell) continue;
+                        
+                        const cellValue = String(cell.v || '').trim();
+                        
+                        // 응시생수 / 응시 행 감지
+                        if (cellValue.includes('응시생수') || 
+                            cellValue.includes('응시') && !isNaN(parseInt(cellValue.charAt(0)))) {
+                            dataEndRow = row - 1;  // 데이터 종료 행 설정
+                            summaryRowStart = row;
+                            
+                            // 2️⃣ 응시인원 수 명시적으로 파싱
+                            for (let col = 2; col <= Math.min(4, range.e.c); col++) {
+                                const numCellRef = XLSX.utils.encode_cell({r: row, c: col});
+                                const numCell = firstSheet[numCellRef];
+                                if (numCell && typeof numCell.v === 'number') {
+                                    attendanceCount = parseInt(numCell.v);
+                                    console.log(`✓ 응시인원: ${attendanceCount}명 (${cellValue})`);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    
+                    console.log(`✓ 파싱 범위: row ${dataStartRow}~${dataEndRow} (Excel: ${dataStartRow + 1}~${dataEndRow + 1}행)`);
+                    
+                    // 3️⃣ 학생 성적 데이터 추출 (동적 범위로)
+                    for (let row = dataStartRow; row <= dataEndRow; row++) {
                         // B 열(col 1)에서 학생 번호 가져오기
                         const studentNumCell = firstSheet[XLSX.utils.encode_cell({r: row, c: 1})];
                         if (!studentNumCell || !studentNumCell.v) break;
                         
                         const studentNumStr = String(studentNumCell.v).trim();
                         
-                        // 요약 행 확인
+                        // 요약 행 재확인 (이중 검증)
                         if (isNaN(parseInt(studentNumStr)) || 
                             studentNumStr.includes('응시') || 
                             studentNumStr.includes('총') || 
                             studentNumStr.includes('평균')) {
+                            console.log(`⏹️ 파싱 종료: "${studentNumStr}" (요약 행 감지)`);
                             break;
                         }
                         
@@ -999,6 +1037,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         students.push(studentData);
                     }
                     
+                    // ===== 4️⃣ IMPROVED: 데이터 정합성 검증 =====
+                    console.log(`📊 파싱된 학생 수: ${students.length}명`);
+                    
+                    if (attendanceCount && students.length !== attendanceCount) {
+                        console.warn(`⚠️ 경고: 파싱된 학생(${students.length}) ≠ 응시인원(${attendanceCount})`);
+                        console.warn(`   → 응시하지 않은 학생이 포함되었거나 데이터가 누락되었을 수 있습니다.`);
+                    }
+                    
+                    // 각 학생의 점수 데이터 검증
+                    let incompleteStudents = [];
+                    students.forEach(s => {
+                        const scoreCount = Object.values(s.scores).filter(
+                            v => v !== null && v !== undefined && !isNaN(v)
+                        ).length;
+                        if (scoreCount === 0) {
+                            incompleteStudents.push(s.number);
+                        }
+                    });
+                    
+                    if (incompleteStudents.length > 0) {
+                        console.warn(`⚠️ 점수 없는 학생: ${incompleteStudents.join(', ')}번`);
+                        console.warn(`   → 해당 학생들은 시험에 응시하지 않았거나 성적이 미입력되었습니다.`);
+                    }
+                    
+                    // ===== 5️⃣ CSV 형식으로 변환 =====
                     // CSV 형식으로 변환
                     const sortedClasses = Array.from(classMap.keys()).sort((a, b) => a - b);
                     const header = ['번호 / 반', ...sortedClasses.map(String)];
