@@ -575,9 +575,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const finalWeight = weights.final || 0;
             const perfWeight = weights.performance || 0;
             
-            if (midtermScore !== null && finalScore !== null && performanceScore !== null) { 
-                total = (midtermScore * midTermWeight / 100) + (finalScore * finalWeight / 100) + (performanceScore * perfWeight / 100); 
-            }
+            if (midtermScore !== null && finalScore !== null && performanceScore !== null) {
+            // performanceScore는 이미 40점 만점이므로 가중치를 곱하지 않고 그대로 더합니다.
+                total = (midtermScore * midTermWeight / 100) + (finalScore * finalWeight / 100) + performanceScore;
+}
             else if (midtermScore !== null && performanceScore !== null && midTermWeight + perfWeight === 100) { 
                 total = (midtermScore * midTermWeight / 100) + (performanceScore * perfWeight / 100); 
             }
