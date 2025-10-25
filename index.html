@@ -15,48 +15,42 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        /* Sidebar Transition */
-        #sidebar { transition: transform 0.3s ease-in-out; }
     
         .file-upload-area { border: 2px dashed #cbd5e1; transition: all 0.2s; }
         .file-upload-area:hover { border-color: #0ea5e9; background-color: #f0f9ff; }
         .file-upload-area.dragging { border-color: #0ea5e9; background-color: #e0f2fe; }
 </style>
 </head>
-<body class="bg-white text-slate-800 antialiased">
-    <div id="app" class="flex h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white w-96 h-screen shadow-xl z-20 transform -translate-x-full md:relative md:translate-x-0 flex flex-col">
-            <header class="flex items-center justify-between p-4 bg-gradient-to-br from-cyan-600 to-indigo-600 text-white flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                    </div>
-                    <h1 class="text-xl font-bold">성적 분석 설정</h1>
+<body class="bg-gradient-to-br from-indigo-500 to-purple-600 text-slate-800 antialiased min-h-screen p-6 md:p-8">
+    
+    <div id="app" class="w-full max-w-screen-2xl mx-auto">
+        
+        <header class="bg-white p-8 px-8 rounded-xl shadow-lg flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 </div>
-                <button id="close-sidebar-btn" class="md:hidden p-1 rounded-full text-white/80 hover:bg-white/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-            </header>
-            
-            <div id="sidebar-content" class="flex-grow overflow-y-auto p-6 space-y-8 bg-sky-50"></div>
-        </aside>
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800">내신 성적 분석 대시보드 (Pro)</h1>
+                    <p class="text-lg text-slate-500">AI 기반 성적 분석 및 리포트 도구</p>
+                </div>
+            </div>
+            <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-lg flex items-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3.5a1.5 1.5 0 01.782 2.845 1.5 1.5 0 01-1.564 0A1.5 1.5 0 0110 3.5zM6.5 6.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM13.5 6.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM10 13.5a1.5 1.5 0 01.782 2.845 1.5 1.5 0 01-1.564 0A1.5 1.5 0 0110 13.5zM6.5 10.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM13.5 10.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+                AI Powered
+            </button>
+        </header>
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between p-4 bg-sky-50 border-b border-slate-200 flex-shrink-0">
-                <div class="flex items-center gap-4">
-                     <button id="open-sidebar-btn" class="md:hidden p-1 rounded-full text-slate-500 hover:bg-slate-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                    <div id="academic-info-container" class="flex items-center flex-wrap gap-4"></div>
-                </div>
-                <div id="logo-container" class="flex-shrink-0"></div>
-            </header>
-            
-            <main id="dashboard-container" class="flex-1 overflow-y-auto p-6 lg:p-8">
-                <!-- Dashboard content will be rendered here -->
-            </main>
+        <div class="flex flex-col md:flex-row gap-6">
+
+            <aside id="sidebar" class="bg-white w-full md:w-96 rounded-xl shadow-lg flex-shrink-0 flex flex-col">
+                <div id="sidebar-content" class="flex-grow overflow-y-auto p-6 space-y-6"></div>
+            </aside>
+
+            <div class="flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
+                <main id="dashboard-container" class="flex-1 overflow-y-auto p-6 lg:p-8">
+                    </main>
+            </div>
         </div>
     </div>
 
@@ -71,28 +65,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = { files: {}, excelFiles: {}, logoSrc: null, academicInfo: { year: new Date().getFullYear(), semester: 1, grade: 1, subject: '' }, analysisSettings: { weights: { midterm: 30, final: 30, performance: 40 }, gradingSystem: 'relative', gradeTiers: 9, 
         achievementCutoffs9Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER} },
         achievementCutoffs5Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER} }
-    }, filters: { classes: [], grades: [] }, activeStatTab: 'midterm', allStudents: [], classList: [], analysisError: null, isProcessing: false, isReady: false, sortConfig: { key: 'ranks.midterm', direction: 'asc' }, isSidebarOpen: false };
+    }, filters: { classes: [], grades: [] }, activeStatTab: 'midterm', allStudents: [], classList: [], analysisError: null, isProcessing: false, isReady: false, sortConfig: { key: 'ranks.midterm', direction: 'asc' } };
     
     const DOMElements = { 
         sidebarContent: document.getElementById('sidebar-content'),
-        academicInfoContainer: document.getElementById('academic-info-container'),
-        logoContainer: document.getElementById('logo-container'),
+        academicInfoContainer: document.getElementById('academic-info-container'), 
+        logoContainer: document.getElementById('logo-container'), 
         dashboardContainer: document.getElementById('dashboard-container'),
         sidebar: document.getElementById('sidebar'),
-        openSidebarBtn: document.getElementById('open-sidebar-btn'),
-        closeSidebarBtn: document.getElementById('close-sidebar-btn'),
     };
     let pieChartInstance = null, barChartInstance = null;
 
     // --- RENDER FUNCTIONS ---
     function render() {
         renderSidebar();
-        renderHeader();
         renderDashboard(); 
     }
     
     function renderSidebar() {
-        const { files, analysisSettings: s, filters, classList, isReady, activeStatTab } = state;
+        const { files, analysisSettings: s, filters, classList, isReady, activeStatTab, academicInfo } = state;
         const totalWeight = Object.values(s.weights).reduce((sum, v) => sum + v, 0);
         
         const is9Tier = s.gradeTiers === 9;
@@ -103,6 +94,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const lightBgClass = `bg-${activeColor}-50`;
         const lightBorderClass = `border-${activeColor}-200`;
         const lightTextClass = `text-${activeColor}-800`;
+
+        const infoBadges = [
+            { label: '학년도', value: academicInfo.year, color: 'indigo' },
+            { label: '학기', value: academicInfo.semester + '학기', color: 'cyan' },
+            { label: '학년', value: academicInfo.grade + '학년', color: 'green' },
+            { label: '과목', value: academicInfo.subject || '미추출', color: 'purple' }
+        ];
+        
+        const academicInfoHTML = `
+            <div class="space-y-2">
+                <div class="flex flex-wrap gap-2">
+                    ${infoBadges.map(badge => `
+                        <span class="px-2.5 py-0.5 bg-${badge.color}-100 text-${badge.color}-800 rounded-full text-xs font-semibold">
+                            ${badge.label}: ${badge.value}
+                        </span>
+                    `).join('')}
+                </div>
+            </div>`;
+
 
         const fileUploadHTML = `<div class="space-y-3">
             <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 mb-3">
@@ -162,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             }).join('')}
             
-            <!-- 수행평가 파일들 -->
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-semibold text-sm text-slate-800">수행평가 (여러 파일 가능)</h3>
@@ -233,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="font-medium text-sm">데이터 필터</p><p class="text-xs text-slate-500 mt-1">데이터가 로드되면 활성화됩니다.</p></div>`;
 
         const sidebarSections = [
+            { title: '📊 자동 추출 정보', content: academicInfoHTML },
             { title: '📋 명렬표 CSV 업로드 (필수)', content: fileUploadHTML },
             { title: '📊 성적 엑셀 업로드 (나이스)', content: excelUploadHTML },
             { title: '⚙️ 반영 비율 설정', content: weightsHTML },
@@ -241,40 +251,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
         
         DOMElements.sidebarContent.innerHTML = sidebarSections.map(section => `
-            <div class="bg-white p-4 rounded-lg border"><h2 class="text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-4">${section.title}</h2>${section.content}</div>
+            <div>
+                <h2 class="text-base font-semibold text-slate-900 mb-4">${section.title}</h2>
+                ${section.content}
+            </div>
         `).join('');
 
         document.getElementById('file-upload').addEventListener('change', window.handleFileChange);
         setupDropzoneEventListeners();
     }
     
-    function renderHeader() {
-        const { academicInfo, logoSrc } = state;
-        
-        // Display academic info as badges (auto-extracted from Excel)
-        const infoBadges = [
-            { label: '학년도', value: academicInfo.year, color: 'indigo' },
-            { label: '학기', value: academicInfo.semester + '학기', color: 'cyan' },
-            { label: '학년', value: academicInfo.grade + '학년', color: 'green' },
-            { label: '과목', value: academicInfo.subject || '-', color: 'purple' }
-        ];
-
-        DOMElements.academicInfoContainer.innerHTML = infoBadges.map(badge => `
-            <span class="px-3 py-1 bg-${badge.color}-100 text-${badge.color}-800 rounded-lg text-sm font-medium">
-                ${badge.label}: ${badge.value}
-            </span>
-        `).join('');
-        
-        DOMElements.logoContainer.innerHTML = `<label for="logo-upload" class="cursor-pointer group flex items-center justify-center">
-            <img id="logo-preview" src="${logoSrc || ''}" alt="School Logo" class="${logoSrc ? '' : 'hidden'} h-9 w-auto object-contain" />
-            <div id="logo-placeholder" class="${logoSrc ? 'hidden' : ''} h-9 w-24 rounded-md bg-white border flex items-center justify-center ring-1 ring-slate-300 group-hover:ring-indigo-500">
-                <span class="text-xs font-semibold text-slate-500 text-center">로고 업로드</span>
-            </div>
-            <input id="logo-upload" type="file" accept="image/*" class="hidden" />
-        </label>`;
-        document.getElementById('logo-upload').addEventListener('change', window.handleLogoChange);
-    }
-
     function renderDashboard() {
         const dashboardContainer = DOMElements.dashboardContainer;
         if (state.isProcessing) {
@@ -282,35 +268,81 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (state.analysisError) {
             dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-full bg-red-50 rounded-xl p-4 text-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-xl font-bold text-red-700">분석 중 오류가 발생했습니다</p><p class="text-md text-red-600 mt-2">${state.analysisError}</p><p class="text-sm text-slate-500 mt-4">F12를 눌러 개발자 도구의 'Console' 탭에서 자세한 오류를 확인해주세요.</p></div>`;
         } else if (state.isReady) {
-            const { allStudents, activeStatTab } = state;
+            const { allStudents, activeStatTab, logoSrc } = state; 
             const stats = calculateStats(allStudents, activeStatTab);
-            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { let isEnabled = false;
-            if (tab === 'midterm') {
-                isEnabled = state.files.midterm;
-            } else if (tab === 'final') {
-                isEnabled = state.files.final;
-            } else if (tab === 'total') {
-                const wts = state.analysisSettings.weights;
-                const totWt = (wts.midterm || 0) + (wts.final || 0) + (wts.performance || 0);
-                isEnabled = totWt === 100 && allStudents.some(s => s.scores.total !== null);
-            } return `<button onclick="window.handleTabChange('${tab}')" class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors ${activeStatTab===tab&&isEnabled?'border-indigo-500 text-indigo-600':'border-transparent text-slate-500 hover:text-slate-800'} ${!isEnabled?'cursor-not-allowed text-slate-300':''}" ${!isEnabled?'disabled':''}>${CONSTANTS.TABS[tab]}</button>`; }).join('');
+
+            const tabsHTML = CONSTANTS.TABS_ORDER.map(tab => { 
+                let isEnabled = false;
+                if (tab === 'midterm') {
+                    isEnabled = state.files.midterm;
+                } else if (tab === 'final') {
+                    isEnabled = state.files.final;
+                } else if (tab === 'total') {
+                    const wts = state.analysisSettings.weights;
+                    const totWt = (wts.midterm || 0) + (wts.final || 0) + (wts.performance || 0);
+                    isEnabled = totWt === 100 && allStudents.some(s => s.scores.total !== null);
+                } 
+                return `<button onclick="window.handleTabChange('${tab}')" 
+                                class="whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-base transition-colors 
+                                ${activeStatTab===tab && isEnabled ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'} 
+                                ${!isEnabled ? 'cursor-not-allowed text-slate-300' : ''}" 
+                                ${!isEnabled ? 'disabled' : ''}>
+                            ${CONSTANTS.TABS[tab]}
+                        </button>`; 
+            }).join('');
+
             const studentsForTable = getFilteredStudents().filter(student => student.scores[activeStatTab] !== null);
             const tableHTML = renderStudentDataTable(getSortedStudents(studentsForTable), allStudents.length);
             
+            // [MODIFIED] 로고 업로더 HTML (크기 h-11로 수정, 약 10% 감소)
+            const logoUploaderHTML = `
+                <label for="logo-upload" class="cursor-pointer group flex items-center justify-center w-full h-11"> 
+                    <img id="logo-preview" src="${logoSrc || ''}" alt="School Logo" class="${logoSrc ? '' : 'hidden'} h-11 w-auto object-contain" /> 
+                    <div id="logo-placeholder" class="${logoSrc ? 'hidden' : ''} flex flex-col items-center justify-center text-center h-11">
+                        <svg class="w-6 h-6 text-slate-400 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                        <span class="text-xs font-semibold text-slate-500 mt-1">로고</span>
+                    </div>
+                    <input id="logo-upload" type="file" accept="image/*" class="hidden" />
+                </label>`;
+
             dashboardContainer.innerHTML = `<div class="space-y-6">
-                <div><nav class="flex space-x-8 border-b border-slate-200">${tabsHTML}</nav></div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="font-medium text-slate-500">평균</h3><p class="text-4xl font-bold mt-1 text-slate-800">${stats.mean.toFixed(2)}</p></div>
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="font-medium text-slate-500">표준편차</h3><p class="text-4xl font-bold mt-1 text-slate-800">${stats.stdDev.toFixed(2)}</p></div>
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="font-medium text-slate-500">응시 인원</h3><p class="text-4xl font-bold mt-1 text-slate-800">${stats.count}</p></div>
+                <div class="flex justify-between items-center border-b border-slate-200">
+                    <nav class="flex space-x-8">${tabsHTML}</nav>
+                    <div class="flex-shrink-0">
+                         ${logoUploaderHTML}
+                    </div>
                 </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-r from-blue-500 to-cyan-400 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="font-medium text-blue-100">평균</h3>
+                        <p class="text-4xl font-bold mt-1">${stats.mean.toFixed(2)}</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="font-medium text-purple-100">표준편차</h3>
+                        <p class="text-4xl font-bold mt-1">${stats.stdDev.toFixed(2)}</p>
+                    </div>
+                     <div class="bg-gradient-to-r from-green-500 to-emerald-400 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="font-medium text-green-100">응시 인원</h3>
+                        <p class="text-4xl font-bold mt-1">${stats.count}</p>
+                    </div>
+                </div>
+                
                 <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
-                    <div id="pie-chart-wrapper" class="xl:col-span-2 bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="text-lg font-semibold mb-4">등급/성취도 분포</h3><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
-                    <div id="bar-chart-wrapper" class="xl:col-span-3 bg-white p-6 rounded-xl shadow-md border border-slate-200"><h3 class="text-lg font-semibold mb-4">점수 분포 히스토그램</h3><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+                    <div id="pie-chart-wrapper" class="xl:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                        <h3 class="text-lg font-semibold mb-4 text-slate-700">등급/성취도 분포</h3>
+                        <div class="chart-container"><canvas id="pieChart"></canvas></div>
+                    </div>
+                    <div id="bar-chart-wrapper" class="xl:col-span-3 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                        <h3 class="text-lg font-semibold mb-4 text-slate-700">점수 분포 히스토그램</h3>
+                        <div class="chart-container"><canvas id="barChart"></canvas></div>
+                    </div>
                 </div>
                 ${tableHTML}
             </div>`;
             
+            document.getElementById('logo-upload')?.addEventListener('change', window.handleLogoChange);
+
             setTimeout(() => { try { renderCharts(); } catch (chartError) {
                 console.error("차트 렌더링 실패:", chartError);
                 document.getElementById('pie-chart-wrapper').innerHTML = '<div class="flex items-center justify-center h-full text-red-500 p-4">파이 차트를 불러오지 못했습니다.</div>';
@@ -318,23 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }}, 0);
         } else {
             dashboardContainer.innerHTML = `<div class="flex flex-col justify-center items-center h-full text-center p-8">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-indigo-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <h2 class="text-2xl font-bold text-slate-800 mb-3">성적 분석 시작하기</h2>
-                <div class="max-w-md space-y-4 text-left">
-                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                        <p class="font-semibold text-amber-900 mb-2">1️⃣ 명렬표 CSV 업로드 (필수)</p>
-                        <p class="text-sm text-amber-800">학생 명단이 포함된 CSV 파일을 업로드하세요.</p>
-                    </div>
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p class="font-semibold text-blue-900 mb-2">2️⃣ 나이스 엑셀 업로드</p>
-                        <p class="text-sm text-blue-800">중간고사, 기말고사, 수행평가 엑셀 파일을 업로드하세요.<br>학년도, 학기, 학년, 과목이 자동으로 추출됩니다.</p>
-                    </div>
+                <div class="mb-4">
+                    <svg class="h-20 w-20 text-indigo-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                 </div>
-                <button onclick="document.getElementById('open-sidebar-btn')?.click()" class="mt-6 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-md">
-                    파일 업로드 시작하기
-                </button>
+                <h2 class="text-xl font-bold text-slate-700 mb-2">데이터를 업로드하여 분석을 시작하세요</h2>
+                <p class="text-slate-500 max-w-sm">좌측에서 명렬표(CSV)와 성적(Excel) 파일을 업로드하면,<br>AI가 성적을 분석하여 상세한 대시보드를 제공합니다.</p>
             </div>`;
         }
     }
@@ -345,15 +367,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const pieCanvas = document.getElementById('pieChart'), barCanvas = document.getElementById('barChart');
         if(!pieCanvas || !barCanvas) { console.error("Chart canvas not found"); return; }
         
-        const gridColor = 'rgba(0, 0, 0, 0.1)';
+        const gridColor = '#e2e8f0'; 
         const textColor = '#334155';
         Chart.defaults.color = textColor;
+        Chart.defaults.font.family = "'Inter', 'Pretendard', sans-serif"; 
 
         const distCounts = {}; allStudents.forEach(s => { let k = analysisSettings.gradingSystem === 'relative' ? String(s.grades[activeStatTab]) : s.achievements[activeStatTab]; if (k && k !== 'null' && k !== "0" && k !== "F") { distCounts[k] = (distCounts[k] || 0) + 1; } });
         const distData = Object.entries(distCounts).map(([name, value]) => ({ name, value })).sort((a, b) => a.name === '기타' ? 1 : b.name === '기타' ? -1 : String(a.name).localeCompare(String(b.name), undefined, { numeric: true }));
-        if (distData.length > 0) { const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b']; pieChartInstance = new Chart(pieCanvas.getContext('2d'), { type: 'doughnut', data: { labels: distData.map(d => d.name), datasets: [{ data: distData.map(d => d.value), backgroundColor: distData.map((d, i) => d.name === 'I' ? '#ef4444' : colors[i % colors.length]), borderColor: '#ffffff', borderWidth: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor } } } } }); }
+        if (distData.length > 0) { 
+            const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#14b8a6', '#64748b', '#ef4444', '#a855f7']; 
+            pieChartInstance = new Chart(pieCanvas.getContext('2d'), { 
+                type: 'doughnut', 
+                data: { 
+                    labels: distData.map(d => d.name), 
+                    datasets: [{ 
+                        data: distData.map(d => d.value), 
+                        backgroundColor: distData.map((d, i) => d.name === 'I' ? '#ef4444' : colors[i % colors.length]), 
+                        borderColor: '#ffffff', 
+                        borderWidth: 4 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'right', 
+                            labels: { color: textColor, boxWidth: 12, padding: 15 } 
+                        } 
+                    }, 
+                    // [MODIFIED] 파이 차트 두께 조절 (cutout: '50%')
+                    cutout: '50%' 
+                } 
+            }); 
+        } 
         
-        // Define the order of bins explicitly to ensure correct sorting on the x-axis
         const binLabels = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-99', '100'];
         const bins = {};
         binLabels.forEach(label => bins[label] = 0);
@@ -379,9 +427,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     labels: binLabels,
                     datasets: [{
                         label: '학생 수',
-                        data: binLabels.map(label => bins[label]), // Map data in the correct order
-                        backgroundColor: '#4f46e5',
-                        borderRadius: 4
+                        data: binLabels.map(label => bins[label]),
+                        backgroundColor: '#60a5fa', 
+                        borderRadius: 4,
+                        barPercentage: 0.7, 
+                        categoryPercentage: 0.8 
                     }]
                 },
                 options: {
@@ -399,7 +449,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#334155', 
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            padding: 10,
+                            cornerRadius: 4,
+                        }
                     }
                 }
             });
@@ -413,20 +470,18 @@ document.addEventListener('DOMContentLoaded', () => {
             midterm: [{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.midterm',l:'점수'},{k:'ranks.midterm',l:'석차'},{k:'grades.midterm',l:'등급'},{k:'achievements.midterm',l:'성취도'}],
             final: [{k:'studentId',l:'학번'},{k:'name',l:'이름'},{k:'scores.final',l:'점수'},{k:'ranks.final',l:'석차'},{k:'grades.final',l:'등급'},{k:'achievements.final',l:'성취도'}]
         }[activeStatTab];
-        if (!cols) return '<div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 text-red-500 text-center">데이터 테이블을 표시할 수 없습니다.</div>';
+        if (!cols) return '<div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-red-500 text-center">데이터 테이블을 표시할 수 없습니다.</div>';
         
         const sortIcon = (key) => sortConfig?.key === key ? (sortConfig.direction === 'asc' ? `<svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>` : `<svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>`) : `<svg class="w-3 h-3 ml-1 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>`;
-        const headers = cols.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer" onclick="window.handleSort('${c.k}')"><div class="flex items-center">${c.l}${sortIcon(c.k)}</div></th>`).join('');
+        const headers = cols.map(c => `<th class="px-4 py-3 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider cursor-pointer" onclick="window.handleSort('${c.k}')"><div class="flex items-center">${c.l}${sortIcon(c.k)}</div></th>`).join('');
         const getVal = (o, p) => p.split('.').reduce((a, c) => (a||{})[c], o);
         const rows = students.map(s => `<tr class="hover:bg-slate-50">${cols.map(c => { const v=getVal(s, c.k); const d=typeof v==='number'&&!Number.isInteger(v)?v.toFixed(2):(v??'—'); return `<td class="px-4 py-3 whitespace-nowrap text-sm ${(c.k.includes('achievements')&&v==='I')?'text-red-500 font-semibold':''} ${(c.k==='name'||c.k==='studentId')?'font-medium text-slate-900':''}">${d}</td>`; }).join('')}</tr>`).join('');
         
-        return `<div class="bg-white rounded-xl shadow-md border border-slate-200"><div class="flex justify-between items-center p-4 border-b border-slate-200"><h3 class="text-lg font-semibold">학생 데이터 (${students.length}/${totalCount})</h3><button onclick="window.exportToCSV()" class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700 transition-colors"><svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>CSV 내보내기</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-slate-50"><tr>${headers}</tr></thead><tbody class="divide-y divide-slate-200">${students.length>0?rows:`<tr><td colspan="${cols.length}" class="text-center py-16 text-slate-500">필터와 일치하는 학생이 없습니다.</td></tr>`}</tbody></table></div></div>`;
+        return `<div class="bg-white rounded-xl shadow-lg border border-slate-200"><div class="flex justify-between items-center p-4 border-b border-slate-200"><h3 class="text-lg font-semibold text-slate-700">학생 데이터 (${students.length}/${totalCount})</h3><button onclick="window.exportToCSV()" class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700 transition-colors"><svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>CSV 내보내기</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-slate-50"><tr>${headers}</tr></thead><tbody class="divide-y divide-slate-200">${students.length>0?rows:`<tr><td colspan="${cols.length}" class="text-center py-16 text-slate-500">필터와 일치하는 학생이 없습니다.</td></tr>`}</tbody></table></div></div>`;
     }
 
     // --- EVENT HANDLERS & CORE LOGIC ---
     function setupEventListeners() {
-        DOMElements.openSidebarBtn.addEventListener('click', () => toggleSidebar(true));
-        DOMElements.closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
     }
     
     function setupDropzoneEventListeners() {
@@ -447,27 +502,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
     function handleDrop(e) { window.handleFileChange({ target: e.dataTransfer }); }
-
-    function toggleSidebar(open) {
-        state.isSidebarOpen = open;
-        if (open) {
-            DOMElements.sidebar.classList.remove('-translate-x-full');
-        } else {
-            DOMElements.sidebar.classList.add('-translate-x-full');
-        }
-    }
     
     window.handleFileChange = (event) => {
         const files = event.target.files || event.dataTransfer.files;
         Array.from(files).forEach(f => {
-            // Only accept roster file for CSV
             if (f.name.includes('명렬표')) {
                 state.files.roster = f;
             }
         });
         processFilesWithDebounce();
     };
-    window.handleLogoChange = (event) => { if (event.target.files && event.target.files[0]) { const r = new FileReader(); r.onload = (e) => { state.logoSrc = e.target.result; render(); }; r.readAsDataURL(event.target.files[0]); }};
+    
+    window.handleLogoChange = (event) => { 
+        if (event.target.files && event.target.files[0]) { 
+            const r = new FileReader(); 
+            r.onload = (e) => { 
+                state.logoSrc = e.target.result; 
+                render(); 
+            }; 
+            r.readAsDataURL(event.target.files[0]); 
+        }
+    };
+    
     window.handleWeightChange = (exam, value) => { state.analysisSettings.weights[exam] = Math.max(0, Math.min(100, parseInt(value, 10) || 0)); reAnalyzeData(); };
     window.handleSettingsChange = (key, value) => { state.analysisSettings[key] = value; if (key === 'gradingSystem' || key === 'gradeTiers') { state.filters.grades = []; } reAnalyzeData(); };
     window.handleCutoffChange = (level, score) => { const { gradeTiers } = state.analysisSettings; if ((gradeTiers === 9 && level === 'E') || (gradeTiers === 5 && level === 'I')) return; const key = gradeTiers === 9 ? 'achievementCutoffs9Tier' : 'achievementCutoffs5Tier'; state.analysisSettings[key][state.activeStatTab][level] = parseFloat(score) || 0; reAnalyzeData(); };
@@ -497,12 +553,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(rawStudentData.length===0)throw new Error("CSV에서 학생 데이터를 추출하지 못했습니다. 파일 형식을 확인하세요.");
             const analyzedStudents = analyzeData(rawStudentData, state.analysisSettings);
             const enabledTabs=[];
-            // 반영비율 합이 정확히 100%인지 확인
             const weights = state.analysisSettings.weights;
             const totalWeight = (weights.midterm || 0) + (weights.final || 0) + (weights.performance || 0);
             const hasTotalScores = totalWeight === 100 && analyzedStudents.some(s => s.scores.total !== null);
             
-            // 반영비율이 100%이면 'total'을 최우선으로 활성화
             if(hasTotalScores) enabledTabs.push('total');
             if(state.files.midterm) enabledTabs.push('midterm');
             if(state.files.final) enabledTabs.push('final');
@@ -517,24 +571,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const { midtermScore, finalScore, performanceScore } = s;
             const { weights } = settings;
             let total = null;
-            // 반영비율이 100이 되는 경우들에 대해 합산점수 계산
             const midTermWeight = weights.midterm || 0;
             const finalWeight = weights.final || 0;
             const perfWeight = weights.performance || 0;
             
-            // 모두 점수가 있는 경우 (반영비율 합 = 100)
             if (midtermScore !== null && finalScore !== null && performanceScore !== null) { 
                 total = (midtermScore * midTermWeight / 100) + (finalScore * finalWeight / 100) + (performanceScore * perfWeight / 100); 
             }
-            // 중간고사와 수행평가만 있고 합산이 100인 경우
             else if (midtermScore !== null && performanceScore !== null && midTermWeight + perfWeight === 100) { 
                 total = (midtermScore * midTermWeight / 100) + (performanceScore * perfWeight / 100); 
             }
-            // 기말고사와 수행평가만 있고 합산이 100인 경우
             else if (finalScore !== null && performanceScore !== null && finalWeight + perfWeight === 100) { 
                 total = (finalScore * finalWeight / 100) + (performanceScore * perfWeight / 100); 
             }
-            // 중간고사와 기말고사만 있고 합산이 100인 경우
             else if (midtermScore !== null && finalScore !== null && midTermWeight + finalWeight === 100) { 
                 total = (midtermScore * midTermWeight / 100) + (finalScore * finalWeight / 100); 
             }
@@ -561,10 +610,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function cleanScore(s){const n=parseFloat(s);return (s==null||String(s).trim()===''||isNaN(n))?null:n;}
     function calculateStats(students, key){if(!students.length)return{mean:0,stdDev:0,count:0};const scores=students.map(s=>s.scores[key]).filter(s=>s!=null&&!isNaN(s));if(!scores.length)return{mean:0,stdDev:0,count:0};const count=scores.length,mean=scores.reduce((a,b)=>a+b,0)/count,stdDev=Math.sqrt(scores.map(x=>Math.pow(x-mean,2)).reduce((a,b)=>a+b,0)/count);return{mean,stdDev,count};}
     
-    // 수행평가 파일 카운터 추적
     let performanceFileCounter = 1;
     
-    // 다음 수행평가 파일 번호 계산
     function getNextPerformanceNumber() {
         const existingNumbers = Object.keys(state.excelFiles)
             .filter(key => key.startsWith('performance'))
@@ -580,7 +627,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.max(...existingNumbers) + 1;
     }
     
-    // 여러 수행평가 파일을 한 번에 업로드 처리
     window.handleMultiplePerformanceFiles = async function(e) {
         const files = e.target.files;
         if (!files || files.length === 0) return;
@@ -591,7 +637,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let startNumber = getNextPerformanceNumber();
             
-            // 각 파일을 순차적으로 처리
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 
@@ -599,7 +644,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const result = await parseExcelFile(file);
                     const { metadata, csvData } = result;
                     
-                    // Update academic info from metadata (첫 파일에서만)
                     if (i === 0) {
                         if (metadata.year) state.academicInfo.year = metadata.year;
                         if (metadata.semester) state.academicInfo.semester = metadata.semester;
@@ -607,13 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (metadata.subject) state.academicInfo.subject = metadata.subject;
                     }
                     
-                    // 파일 타입 결정
                     const fileType = (i === 0 && startNumber === 1) ? 'performance' : `performance${startNumber + i}`;
                     
-                    // Store Excel file
                     state.excelFiles[fileType] = file;
                     
-                    // Convert to CSV File object
                     const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
                     const csvFile = new File([csvBlob], `${fileType}_parsed.csv`, { type: 'text/csv' });
                     state.files[fileType] = csvFile;
@@ -625,10 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // 모든 파일이 로드된 후 합산
             await mergeAndStorePerformanceFiles();
             
-            // 파일 입력 초기화 (다시 같은 파일을 선택할 수 있도록)
             e.target.value = '';
             
             processFilesWithDebounce();
@@ -655,21 +694,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await parseExcelFile(file);
             const { metadata, csvData } = result;
             
-            // Update academic info from metadata
             if (metadata.year) state.academicInfo.year = metadata.year;
             if (metadata.semester) state.academicInfo.semester = metadata.semester;
             if (metadata.grade) state.academicInfo.grade = metadata.grade;
             if (metadata.subject) state.academicInfo.subject = metadata.subject;
             
-            // Store Excel file
             state.excelFiles[type] = file;
             
-            // Convert to CSV File object
             const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             const csvFile = new File([csvBlob], `${type}_parsed.csv`, { type: 'text/csv' });
-            state.files[type] = csvFile;  // File 객체로 저장
+            state.files[type] = csvFile;
             
-            // 수행평가 파일인 경우, 모든 수행평가 파일을 합산
             if (type.startsWith('performance')) {
                 await mergeAndStorePerformanceFiles();
             }
@@ -683,7 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // 수행평가 파일들을 합산하는 함수
     async function mergeAndStorePerformanceFiles() {
         const performanceKeys = Object.keys(state.files)
             .filter(key => key.startsWith('performance'))
@@ -696,12 +730,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (performanceKeys.length === 0) return;
         
         if (performanceKeys.length === 1) {
-            // 수행평가 파일이 1개면 그냥 사용
             state.files.performance = state.files[performanceKeys[0]];
             return;
         }
         
-        // 2개 이상의 수행평가 파일을 합산
         try {
             const mergedCsv = await mergePerformanceFiles(performanceKeys);
             const csvBlob = new Blob([mergedCsv], { type: 'text/csv;charset=utf-8;' });
@@ -709,39 +741,31 @@ document.addEventListener('DOMContentLoaded', () => {
             state.files.performance = csvFile;
         } catch (error) {
             console.error('수행평가 합산 오류:', error);
-            // 오류 발생 시 첫 번째 파일만 사용
             state.files.performance = state.files[performanceKeys[0]];
         }
     }
     
-    // 여러 수행평가 파일을 합산
     async function mergePerformanceFiles(performanceKeys) {
-        // 각 파일 파싱
         const parsedFiles = [];
         
         for (const key of performanceKeys) {
             const csvFile = state.files[key];
             if (!csvFile) continue;
             
-            // File 객체에서 텍스트 추출
             const csvData = await csvFile.text();
             
-            // CSV 파싱
             const lines = csvData.trim().split('\n');
             if (lines.length < 2) continue;
             
-            // 헤더 파싱
             const header = lines[0]
                 .split(',')
                 .map(h => h.replace(/"/g, '').trim());
             
-            // 데이터 파싱
             const data = {};
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
                 
-                // CSV 셀 파싱
                 const cells = [];
                 let cell = '';
                 let inQuotes = false;
@@ -759,7 +783,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 cells.push(cell.replace(/"/g, '').trim());
                 
-                // 학생 번호
                 const studentNum = parseInt(cells[0]);
                 if (isNaN(studentNum)) continue;
                 
@@ -767,7 +790,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     data[studentNum] = {};
                 }
                 
-                // 각 반의 점수 추가
                 for (let j = 1; j < header.length; j++) {
                     const classNum = parseInt(header[j]);
                     const scoreStr = cells[j];
@@ -791,7 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error('파싱할 수행평가 파일이 없습니다.');
         }
         
-        // 모든 파일 데이터 병합
         const mergedData = {};
         for (const fileData of parsedFiles) {
             for (const [studentNum, scores] of Object.entries(fileData)) {
@@ -810,7 +831,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 합산 결과를 CSV로 변환
         const allClasses = new Set();
         for (const scores of Object.values(mergedData)) {
             for (const classNum of Object.keys(scores)) {
@@ -819,11 +839,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const sortedClasses = Array.from(allClasses).sort((a, b) => a - b);
         
-        // CSV 헤더
         const csvHeader = ['번호 / 반', ...sortedClasses.map(String)];
         const csvLines = [csvHeader.map(h => `"${h}"`).join(',')];
         
-        // CSV 데이터 행
         const sortedStudents = Object.keys(mergedData)
             .map(Number)
             .sort((a, b) => a - b);
@@ -844,16 +862,13 @@ document.addEventListener('DOMContentLoaded', () => {
         delete state.excelFiles[type];
         delete state.files[type];
         
-        // 수행평가 파일을 제거했으면 나머지 파일들을 재합산
         if (type.startsWith('performance')) {
             const remainingPerformanceKeys = Object.keys(state.files)
                 .filter(key => key.startsWith('performance'));
             
             if (remainingPerformanceKeys.length > 0) {
-                // 비동기 함수를 기다리지 않고 호출 (debounce로 인해 곧 processFiles가 호출됨)
                 mergeAndStorePerformanceFiles();
             } else {
-                // 수행평가 파일이 없으면 performance 파일도 제거
                 delete state.files.performance;
             }
         }
@@ -870,10 +885,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     
-                    // 전체 데이터 추출 (병합 정보 포함)
                     const range = XLSX.utils.decode_range(firstSheet['!ref']);
                     
-                    // 메타데이터 추출 (행 2~7)
                     const metadata = { year: null, semester: null, grade: null, subject: null };
                     for (let row = 1; row <= 6; row++) {
                         for (let col = 0; col <= range.e.c; col++) {
@@ -899,15 +912,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 metadata.subject = subject;
                             }
                             
-                            // 학년 추출 - "주간" 오른쪽에 있는 학년을 우선으로 찾음
                             if (!metadata.grade) {
-                                // 방법1: "주간" 다음에 나오는 학년 찾기
                                 const gradeAfterWeekMatch = cellValue.match(/주간\s+(\d+)학년/);
                                 if (gradeAfterWeekMatch) {
                                     metadata.grade = parseInt(gradeAfterWeekMatch[1]);
                                 } else {
-                                    // 방법2: 마지막 3글자에서 "X학년" 패턴 찾기
-                                    // (2025학년도가 아닌 2학년만 추출하기 위함)
                                     const lastThreeChars = cellValue.slice(-3);
                                     const gradeMatch = lastThreeChars.match(/(\d+)학년/);
                                     if (gradeMatch) {
@@ -918,7 +927,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                     
-                    // 헤더 행 찾기 (번호가 포함된 첫 행)
                     let headerRowIdx = -1;
                     for (let row = 0; row < Math.min(20, range.e.r + 1); row++) {
                         let hasHeaderKeyword = false;
@@ -938,7 +946,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (headerRowIdx === -1) throw new Error('헤더 행을 찾을 수 없습니다.');
                     
-                    // 반 번호 추출 (헤더 행에서 숫자인 열 찾기)
                     const classMap = new Map();
                     for (let col = 1; col <= range.e.c; col++) {
                         const cellRef = XLSX.utils.encode_cell({r: headerRowIdx, c: col});
@@ -950,15 +957,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                     
-                    // ===== 3️⃣ IMPROVED: 동적 데이터 범위 계산 및 응시인원 파싱 =====
-                    // [개선사항] 하드코드된 '+35' 제거, 응시인원 명시적 파싱, 데이터 검증 추가
-                    
                     const students = [];
                     const dataStartRow = headerRowIdx + 1;
                     
-                    // 1️⃣ 요약 행 위치 찾기 (응시생수, 총점, 평균)
-                    let dataEndRow = Math.min(dataStartRow + 35, range.e.r);  // 기본값
-                    let attendanceCount = null;  // 응시인원
+                    let dataEndRow = Math.min(dataStartRow + 35, range.e.r);
+                    let attendanceCount = null;
                     let summaryRowStart = null;
                     
                     for (let row = dataStartRow; row <= Math.min(dataStartRow + 40, range.e.r); row++) {
@@ -968,13 +971,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const cellValue = String(cell.v || '').trim();
                         
-                        // 응시생수 / 응시 행 감지
                         if (cellValue.includes('응시생수') || 
                             cellValue.includes('응시') && !isNaN(parseInt(cellValue.charAt(0)))) {
-                            dataEndRow = row - 1;  // 데이터 종료 행 설정
+                            dataEndRow = row - 1;
                             summaryRowStart = row;
                             
-                            // 2️⃣ 응시인원 수 명시적으로 파싱
                             for (let col = 2; col <= Math.min(4, range.e.c); col++) {
                                 const numCellRef = XLSX.utils.encode_cell({r: row, c: col});
                                 const numCell = firstSheet[numCellRef];
@@ -990,15 +991,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     console.log(`✓ 파싱 범위: row ${dataStartRow}~${dataEndRow} (Excel: ${dataStartRow + 1}~${dataEndRow + 1}행)`);
                     
-                    // 3️⃣ 학생 성적 데이터 추출 (동적 범위로)
                     for (let row = dataStartRow; row <= dataEndRow; row++) {
-                        // B 열(col 1)에서 학생 번호 가져오기
                         const studentNumCell = firstSheet[XLSX.utils.encode_cell({r: row, c: 1})];
                         if (!studentNumCell || !studentNumCell.v) break;
                         
                         const studentNumStr = String(studentNumCell.v).trim();
                         
-                        // 요약 행 재확인 (이중 검증)
                         if (isNaN(parseInt(studentNumStr)) || 
                             studentNumStr.includes('응시') || 
                             studentNumStr.includes('총') || 
@@ -1017,7 +1015,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const studentData = { number: studentNum, scores: {} };
                         
-                        // 각 반의 점수 추출
                         classMap.forEach((col, classNum) => {
                             const cellRef = XLSX.utils.encode_cell({r: row, c: col});
                             const scoreCell = firstSheet[cellRef];
@@ -1037,7 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         students.push(studentData);
                     }
                     
-                    // ===== 4️⃣ IMPROVED: 데이터 정합성 검증 =====
                     console.log(`📊 파싱된 학생 수: ${students.length}명`);
                     
                     if (attendanceCount && students.length !== attendanceCount) {
@@ -1045,7 +1041,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.warn(`   → 응시하지 않은 학생이 포함되었거나 데이터가 누락되었을 수 있습니다.`);
                     }
                     
-                    // 각 학생의 점수 데이터 검증
                     let incompleteStudents = [];
                     students.forEach(s => {
                         const scoreCount = Object.values(s.scores).filter(
@@ -1061,8 +1056,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.warn(`   → 해당 학생들은 시험에 응시하지 않았거나 성적이 미입력되었습니다.`);
                     }
                     
-                    // ===== 5️⃣ CSV 형식으로 변환 =====
-                    // CSV 형식으로 변환
                     const sortedClasses = Array.from(classMap.keys()).sort((a, b) => a - b);
                     const header = ['번호 / 반', ...sortedClasses.map(String)];
                     const csvRows = [header.map(h => `"${h}"`).join(',')];
@@ -1094,5 +1087,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
