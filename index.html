@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER: { A: 85, B: 70, C: 60, D: 45, E: 30, I: 0 }, 
         FILE_METADATA: { roster: { name: '명렬표', label: '명렬표' }, midterm: { name: '중간', label: '중간고사' }, final: { name: '기말', label: '기말고사' }, performance: { name: '수행', label: '수행평가' } }, TABS: { midterm: '중간고사', final: '기말고사', total: '합산 점수' }, TABS_ORDER: ['midterm', 'final', 'total'] };
     
-    let state = { files: {}, excelFiles: {}, logoSrc: null, academicInfo: { year: new Date().getFullYear(), semester: 1, grade: 1, subject: '' }, analysisSettings: { weights: { midterm: 30, final: 30, performance: 40 }, gradingSystem: 'relative', gradeTiers: 9, 
+    let state = { files: {}, excelFiles: {}, logoSrc: null, originalRosterFile: null, academicInfo: { year: new Date().getFullYear(), semester: 1, grade: 1, subject: '' }, analysisSettings: { weights: { midterm: 30, final: 30, performance: 40 }, gradingSystem: 'relative', gradeTiers: 9, 
         achievementCutoffs9Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_9_TIER} },
         achievementCutoffs5Tier: { midterm: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, final: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER}, total: {...CONSTANTS.DEFAULT_ACHIEVEMENT_CUTOFFS_5_TIER} }
     }, filters: { classes: [], grades: [] }, activeStatTab: 'midterm', allStudents: [], classList: [], analysisError: null, isProcessing: false, isReady: false, sortConfig: { key: 'ranks.midterm', direction: 'asc' } };
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderSidebar() {
-        const { files, analysisSettings: s, filters, classList, isReady, activeStatTab, academicInfo } = state;
+        const { files, originalRosterFile, analysisSettings: s, filters, classList, isReady, activeStatTab, academicInfo } = state;
         const totalWeight = Object.values(s.weights).reduce((sum, v) => sum + v, 0);
         
         const is9Tier = s.gradeTiers === 9;
@@ -116,21 +116,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fileUploadHTML = `<div class="space-y-3">
             <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 mb-3">
-                <p class="font-semibold mb-1">📋 명렬표 CSV 업로드 (필수)</p>
-                <p class="text-xs">명렬표는 반드시 CSV 파일로 업로드해야 합니다.</p>
+                <p class="font-semibold mb-1">📋 명렬표 파일 업로드 (필수)</p>
+                <p class="text-xs">명렬표는 CSV 또는 Excel 파일로 업로드할 수 있습니다.</p>
             </div>
             <label for="file-upload" class="cursor-pointer group">
                 <div class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 text-center bg-white group-hover:border-${activeColor}-500 transition-colors">
                     <svg class="w-10 h-10 text-slate-400 group-hover:text-${activeColor}-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                     <p class="mt-2 font-semibold">명렬표 파일 선택 또는 드래그</p>
-                    <p class="text-sm text-slate-500">.csv 파일만 가능</p>
+                    <p class="text-sm text-slate-500">.csv, .xlsx, .xls 파일</p>
                 </div>
-                <input id="file-upload" type="file" accept=".csv" class="hidden">
+                <input id="file-upload" type="file" accept=".csv,.xlsx,.xls" class="hidden">
             </label>
-            ${files.roster ? `
+            ${originalRosterFile ? `
                 <div class="flex items-center gap-2 p-3 rounded-md bg-green-100 text-green-700">
                     <svg viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                    <span class="font-medium">명렬표: ${files.roster.name}</span>
+                    <span class="font-medium">명렬표: ${originalRosterFile.name}</span>
                 </div>
             ` : `
                 <div class="flex items-center gap-2 p-3 rounded-md bg-slate-100 text-slate-500">
@@ -139,9 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `}
             <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-md border border-slate-200">
-                <p class="font-semibold">CSV 파일 형식:</p>
+                <p class="font-semibold">파일 형식:</p>
                 <ol class="list-decimal list-inside space-y-1">
-                    <li>파일은 <strong>CSV (UTF-8)</strong> 형식이어야 합니다.</li>
+                    <li>파일은 <strong>CSV 또는 Excel</strong> 형식이어야 합니다.</li>
                     <li>파일 이름에 <strong>'명렬표'</strong>가 포함되어야 합니다.</li>
                 </ol>
             </div>
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sidebarSections = [
             { title: '📊 자동 추출 정보', content: academicInfoHTML },
-            { title: '📋 명렬표 CSV 업로드 (필수)', content: fileUploadHTML },
+            { title: '📋 명렬표 파일 업로드 (필수)', content: fileUploadHTML },
             { title: '📊 성적 엑셀 업로드 (나이스)', content: excelUploadHTML },
             { title: '⚙️ 반영 비율 설정', content: weightsHTML },
             { title: '📈 분석 설정', content: analysisSettingsHTML },
@@ -501,15 +501,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-    function handleDrop(e) { window.handleFileChange({ target: e.dataTransfer }); }
+    async function handleDrop(e) { await window.handleFileChange({ target: e.dataTransfer }); }
     
-    window.handleFileChange = (event) => {
-        const files = event.target.files || event.dataTransfer.files;
-        Array.from(files).forEach(f => {
-            if (f.name.includes('명렬표')) {
-                state.files.roster = f;
-            }
+    async function convertExcelToCsvFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const csvString = XLSX.utils.sheet_to_csv(worksheet);
+
+                    const blob = new Blob([`\uFEFF${csvString}`], { type: 'text/csv;charset=utf-8;' });
+                    const newFileName = file.name.replace(/\.(xlsx|xls)$/i, '.csv');
+                    const csvFile = new File([blob], newFileName, { type: 'text/csv' });
+                    resolve(csvFile);
+                } catch (error) {
+                    console.error("Excel to CSV conversion failed:", error);
+                    reject(error);
+                }
+            };
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
         });
+    }
+
+    window.handleFileChange = async (event) => {
+        const files = event.target.files || event.dataTransfer.files;
+        const rosterFile = Array.from(files).find(f => f.name.includes('명렬표'));
+    
+        if (rosterFile) {
+            state.originalRosterFile = rosterFile; // 원본 파일 저장
+            try {
+                const isExcel = /\.(xlsx|xls)$/i.test(rosterFile.name);
+                if (isExcel) {
+                    state.files.roster = await convertExcelToCsvFile(rosterFile);
+                } else {
+                    state.files.roster = rosterFile;
+                }
+            } catch (error) {
+                alert('명렬표 파일 처리 중 오류가 발생했습니다: ' + error.message);
+                state.originalRosterFile = null;
+                delete state.files.roster;
+                return;
+            }
+        }
         processFilesWithDebounce();
     };
     
